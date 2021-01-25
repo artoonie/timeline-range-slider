@@ -8,8 +8,11 @@ let sliders = {}
 /* Data about an in-progress mousedown */
 let activeSlideData = {}
 
-/* Creates a single tick mark */
 function createTick() {
+    /**
+     * Creates a single tick mark
+     * @return the div containing the tick
+     */
     let div = document.createElement('div');
     div.setAttribute('class', 'slider-item');
 
@@ -20,13 +23,13 @@ function createTick() {
 
 function setClassForElements(elements, classBaseName, tickValue) {
     /**
+     * Updates a set of HTML elements to indicate the current tick value
+     *
      * @param elements A list of elements to update class names
      * @param classBaseName the "base" of the class name, to which we will append
      *                      -past, -future, or -active depending on if its index
      *                      is before, after, or equal to tickValue
      * @param tickValue the active tick
-     *
-     * Updates a set of HTML elements to indicate the current tick value
      */
 
     const classNamePast = classBaseName + '-past';
@@ -53,6 +56,9 @@ function setClassForElements(elements, classBaseName, tickValue) {
 }
 
 function setSliderValue(elem, value) {
+    /**
+     * Sets the value of the slider, updating classes and notifying the timeline
+     */
     const sliderData = sliders[elem];
 
     value = Math.min(value, sliderData.ticks.length-1);
@@ -71,8 +77,10 @@ function setSliderValue(elem, value) {
     notifySliderChangedTo(elem, value);
 }
 
-/* Sets the active position of the slider based on an event */
 function setPosition(e) {
+    /**
+     * Sets the active position of the slider based on an event
+     */
     const rect = activeSlideData.target.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const targetData = sliders[activeSlideData.target];
@@ -102,15 +110,30 @@ function onSliderDragEnd() {
     document.removeEventListener("mouseup", onSliderDragEnd);
 }
 
-function createSliderAndTimeline(outerDivId, numTicks, width) {
-    let outerDiv = document.getElementById(outerDivId);
-    outerDiv.style.maxWidth = width + "px";
-    outerDiv.style.width = "100%";
+function setConfigDefaults(config) {
+    /**
+     * If any option is not provided, chooses a sane default
+     * @param options A set of overriding config values, edits in-place
+     * @throws Error if any required option is not provided
+     */
+    if (config.numTicks === undefined) {
+        throw new Error("numTicks is required");
+    }
+    if (config.width === undefined) {
+        config.width = 600;
+    }
+    if (config.tickLabelPrefix === undefined) {
+        config.tickLabelPrefix = "Round ";
+    }
+}
 
+function createSlider(sliderData, numTicks) {
+    /**
+     * Creates the slider element.
+     * Fills out sliderData.ticks and sliderData.sliderDiv
+     */
     let sliderDiv = document.createElement('div');
     sliderDiv.className = 'slider';
-
-    outerDiv.appendChild(sliderDiv);
 
     let ticks = [];
     for (let i = 0; i < numTicks; ++i) {
@@ -121,24 +144,59 @@ function createSliderAndTimeline(outerDivId, numTicks, width) {
 
     sliderDiv.addEventListener("mousedown", onSliderDragStart);
 
-    sliders[sliderDiv] = {
-        'width': width,
-        'ticks': ticks,
-        'sliderDiv': sliderDiv,
+    sliderData.ticks = ticks;
+    sliderData.sliderDiv = sliderDiv;
+}
+
+function createSliderAndTimeline(outerDivId, config) {
+    /**
+     * Creates the slider and the timeline
+     * @param outerDivId An empty div into which to place them
+     * @param options User-controlled options, see the README
+     */
+
+    setConfigDefaults(config);
+
+    // Set style of outer div
+    let outerDiv = document.getElementById(outerDivId);
+    outerDiv.style.maxWidth = config.width + "px";
+    outerDiv.style.width = "100%";
+
+    // Set up data
+    let sliderData = {
+        'width': config.width,
+
+        /* To be filled out by createSlider */
+        'ticks': null,
+        'sliderDiv': null,
+
+        /* To be filled out by createTimeline */
         'currentIndex': null,
         'timelineData': null
     };
 
-    createTimeline(sliders[sliderDiv], createFakeData(numTicks), width);
-    outerDiv.appendChild(sliders[sliderDiv].timelineDiv);
+    // Create slider
+    createSlider(sliderData, config.numTicks);
+    outerDiv.appendChild(sliderData.sliderDiv);
 
-    setSliderValue(sliderDiv,numTicks-1);
+    // Create timeline
+    createTimeline(sliderData, createFakeData(config.numTicks), config.width);
+    outerDiv.appendChild(sliderData.timelineDiv);
+
+    // Store data
+    sliders[sliderData.sliderDiv] = sliderData;
+
+    // Move slider to end
+    setSliderValue(sliderData.sliderDiv,config.numTicks-1);
 }
 
 /*
  * Part 2 of this file: timeline functionality
  */
 function notifySliderChangedTo(elem, value) {
+    /**
+     * Receives a notification from the slider that the slider changed
+     */
     const sliderData = sliders[elem];
 
     document.getElementById('round-number').innerHTML = "Round " + (value+1);
@@ -152,6 +210,9 @@ function notifySliderChangedTo(elem, value) {
 }
 
 function showHelpTooltip(event) {
+    /**
+     * Uses the data-label attribute and converts it to a tooltip
+     */
     const helpText = event.target.getAttribute('data-label');
 
     let div = document.createElement('div');
@@ -167,11 +228,14 @@ function showHelpTooltip(event) {
 }
 
 function hideHelpTooltip() {
+    /**
+     * Hides the tooltip created by showHelpTooltip
+     */
     document.getElementById('timeline-info-tooltip').remove();
 }
 
 function createTimeline(sliderData, listOfTickData) {
-    /*
+    /**
      * List of tick data is an array of length #ticks.
      * Each element is a list of objects describing the timeline of events that happened
      * on that tick. Each of those elements are object with fields:
@@ -251,6 +315,8 @@ function createFakeData(numTicks) {
     return allData;
 }
 
-const numTicks = 40;
-const width = 600;
-createSliderAndTimeline('slider-timeline-wrapper', numTicks, width);
+const config = {
+    numTicks: 40,
+    width: 600
+}
+createSliderAndTimeline('slider-timeline-wrapper', config);

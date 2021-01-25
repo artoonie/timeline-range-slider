@@ -2,8 +2,12 @@ body {
     background-color: white;
 }
 .slider {
+    width: 100%;
+
     background-color: #b1e0e6;
-    border-radius: 5px;
+    border-radius: 5px 5px 0 0;
+    border-width: 1px 1px 0 1px;
+    border-style: solid;
     padding: 5px 0 5px 0;
 
     display: flex;
@@ -40,16 +44,15 @@ body {
 
 /* Slider Timeline Data */
 .timeline {
+    width: 100%;
     border-color: #333;
-    border-width: 1px;
-    border-radius: 3px;
+    border-width: 0 1px 1px 1px;
+    border-style: solid;
+    border-radius: 0 0 5px 5px;
     background-color: #b1e0e6;
 
-    border-style: solid;
     overflow-y: auto;
     overflow-x: hidden;
-
-    width: 100%;
 }
 
 .timeline-header {
