@@ -2,16 +2,12 @@ body {
     background-color: white;
 }
 .slider {
-    overflow-x: hidden;
     background-color: #b1e0e6;
-    flex-wrap: nowrap;
-    width: fit-content;
     border-radius: 5px;
     padding: 5px 0 5px 0;
 
-    /* Experimenting with thin line:
-    background: linear-gradient(0deg, palegreen 49%, darkblue 50%, palegreen 51%);
-     */
+    display: flex;
+    justify-content: space-evenly;
 
     /* Don't allow dragging */
     -webkit-touch-callout: none;
@@ -43,7 +39,7 @@ body {
 }
 
 /* Slider Timeline Data */
-.slider-timeline {
+.timeline {
     border-color: #333;
     border-width: 1px;
     border-radius: 3px;
@@ -55,23 +51,32 @@ body {
 
     width: 100%;
 }
-.slider-timeline-past {
+
+.timeline-header {
+    text-align: center;
+}
+.timeline-column-active .timeline-header {
+    font-weight: bold;
+}
+
+.timeline-column-past {
     opacity: 75%;
 }
 
-.slider-timeline-future {
-    opacity: 25%;
+.timeline-column-future {
+    opacity: 20%;
 }
 
-.slider-timeline-active {
+.timeline-column-active {
     opacity: 100%;
 }
 
-.slider-info-one-step {
+.timeline-info-one-step {
     font-size: 0.7em;
     float: left;
 }
-.slider-info {
+
+.timeline-info {
     border-radius: 15px;
     padding: 5px;
     margin: 2px;
@@ -80,12 +85,44 @@ body {
     border-color: #CCCCCC33;
     border-style: ridge;
 }
-.slider-info-elected {
+.timeline-info-elected {
     background-color: lightgreen;
 }
-.slider-info-eliminated {
+.timeline-info-eliminated {
     background-color: lightcoral;
 }
-.slider-info-otherdata {
+.timeline-info-other-data {
     background-color: lightgray;
+}
+
+.question-mark {
+    color:#fff;
+    background-color:#6a6f6f;
+    width:12px;
+    height:12px;
+    display:inline-block;
+    margin-left: 5px;
+    border-radius:100%;
+    font-size:10px;
+    text-align:center;
+    text-decoration:none;
+    -webkit-box-shadow: inset -1px -1px 1px 0 rgba(0,0,0,0.25);
+    -moz-box-shadow: inset -1px -1px 1px 0 rgba(0,0,0,0.25);
+    box-shadow: inset -1px -1px 1px 0 rgba(0,0,0,0.25);
+}
+
+/* Tooltip text */
+#timeline-info-tooltip {
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 5px;
+    border-radius: 6px;
+    font-size: 0.7em;
+    max-width: 400px;
+
+    /* Position the tooltip text - see examples below! */
+    position: absolute;
+    z-index: 1;
+    opacity: 100% !important;
 }

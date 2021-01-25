@@ -9,10 +9,9 @@ let sliders = {}
 let activeSlideData = {}
 
 /* Creates a single tick mark */
-function createTick(minWidth) {
+function createTick() {
     let div = document.createElement('div');
     div.setAttribute('class', 'slider-item');
-    div.style.minWidth = minWidth + 'px';
 
     const newContent = document.createTextNode("•");
     div.appendChild(newContent);
@@ -77,7 +76,11 @@ function setPosition(e) {
     const rect = activeSlideData.target.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const targetData = sliders[activeSlideData.target];
-    const value = Math.floor(x / targetData.widthPerTick);
+
+    const timelineWidth = targetData.timelineDiv.clientWidth;
+    const widthPerTick = timelineWidth / targetData.ticks.length;
+    const value = Math.floor(x / widthPerTick);
+
     setSliderValue(activeSlideData.target, value);
 }
 
@@ -92,7 +95,6 @@ function onSliderDragStart(event) {
     document.addEventListener("mousemove", onSliderDrag);
     document.addEventListener("mouseup", onSliderDragEnd);
     setPosition(event);
-    console.log(event)
 }
 
 function onSliderDragEnd() {
@@ -110,10 +112,9 @@ function createSliderAndTimeline(outerDivId, numTicks, width) {
 
     outerDiv.appendChild(sliderDiv);
 
-    const widthPerTick = width / numTicks;
     let ticks = [];
     for (let i = 0; i < numTicks; ++i) {
-        const tick = createTick(widthPerTick);
+        const tick = createTick();
         const elem = sliderDiv.appendChild(tick);
         ticks.push(elem);
     }
@@ -122,8 +123,8 @@ function createSliderAndTimeline(outerDivId, numTicks, width) {
 
     sliders[sliderDiv] = {
         'width': width,
-        'widthPerTick': widthPerTick,
         'ticks': ticks,
+        'sliderDiv': sliderDiv,
         'currentIndex': null,
         'timelineData': null
     };
@@ -142,13 +143,33 @@ function notifySliderChangedTo(elem, value) {
 
     document.getElementById('round-number').innerHTML = "Round " + (value+1);
 
-    setClassForElements(sliderData.timelineDivsPerTick, 'slider-timeline', value);
+    setClassForElements(sliderData.timelineDivsPerTick, 'timeline-column', value);
 
     // First, scroll immediately into view
     sliderData.timelineDivsPerTick[value].scrollIntoView({behavior: 'auto', inline: 'nearest', block: 'nearest'});
     // Then, scroll smoothly into center
     sliderData.timelineDivsPerTick[value].scrollIntoView({behavior: 'smooth', inline: 'center', block: 'nearest'});
 }
+
+function showHelpTooltip(event) {
+    const helpText = event.target.getAttribute('data-label');
+
+    let div = document.createElement('div');
+    div.id = 'timeline-info-tooltip';
+    div.innerHTML = helpText;
+    div.style.top = event.target.getBoundingClientRect().top + "px";
+    div.style.left = event.target.getBoundingClientRect().right + "px";
+
+    // To ensure tooltip is never transparent,
+    // find the first non-transparent element in the hierarchy
+    const firstNonTransparentElement = event.target.parentElement.parentElement.parentElement;
+    firstNonTransparentElement.appendChild(div);
+}
+
+function hideHelpTooltip() {
+    document.getElementById('timeline-info-tooltip').remove();
+}
+
 function createTimeline(sliderData, listOfTickData) {
     /*
      * List of tick data is an array of length #ticks.
@@ -159,20 +180,35 @@ function createTimeline(sliderData, listOfTickData) {
      *  elem.moreInfoText
      */
     let timelineDiv = document.createElement('div');
-    timelineDiv.className = 'slider-timeline';
+    timelineDiv.className = 'timeline';
     let timelineDivsPerTick = [];
 
     let floatWrap = document.createElement('div');
     floatWrap.style.float = "left";
 
-    listOfTickData.map(function(tickData) {
+    listOfTickData.map(function(tickData, i) {
         let tickDiv = document.createElement('div');
-        tickDiv.setAttribute('class', 'slider-info-one-step');
+        tickDiv.setAttribute('class', 'timeline-info-one-step');
+
+        let headerDiv = document.createElement('div');
+        headerDiv.innerHTML = "Round " + (i+1);
+        headerDiv.setAttribute('class', 'timeline-header');
+        tickDiv.appendChild(headerDiv);
 
         tickData.map(function(tickDatum) {
             let div = document.createElement('div');
-            div.setAttribute('class', 'slider-info ' + tickDatum.className);
+            div.setAttribute('class', 'timeline-info ' + tickDatum.className);
             div.innerHTML = tickDatum.summaryText;
+
+            let moreInfoLink = document.createElement('a');
+            moreInfoLink.innerHTML = '?';
+            moreInfoLink.setAttribute('class', 'question-mark');
+            moreInfoLink.setAttribute('data-label', tickDatum.moreInfoText);
+            moreInfoLink.onmouseover = showHelpTooltip;
+            moreInfoLink.onmouseout = hideHelpTooltip;
+
+            div.appendChild(moreInfoLink);
+
             tickDiv.appendChild(div);
         })
 
@@ -191,13 +227,16 @@ function createTimeline(sliderData, listOfTickData) {
 function createFakeData(numTicks) {
     const datumOptions = [{
         summaryText: "Someone elected",
-        className: "slider-info-elected"
+        className: "timeline-info-elected",
+        moreInfoText: "Someone reached a threshold!"
     }, {
         summaryText: "Someone eliminated",
-        className: "slider-info-eliminated"
+        className: "timeline-info-eliminated",
+        moreInfoText: "Someone all gone!"
     }, {
         summaryText: "Something la la",
-        className: "slider-info-otherdata"
+        className: "timeline-info-other-data",
+        moreInfoText: "Someone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thing!"
     },
     ]
     let allData = [];
