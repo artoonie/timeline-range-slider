@@ -1,0 +1,91 @@
+body {
+    background-color: white;
+}
+.slider {
+    overflow-x: hidden;
+    background-color: #b1e0e6;
+    flex-wrap: nowrap;
+    width: fit-content;
+    border-radius: 5px;
+    padding: 5px 0 5px 0;
+
+    /* Experimenting with thin line:
+    background: linear-gradient(0deg, palegreen 49%, darkblue 50%, palegreen 51%);
+     */
+
+    /* Don't allow dragging */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.slider-item {
+    float: left;
+    text-align: center;
+    pointer-events: none;
+}
+
+.slider-past {
+    color: orangered;
+}
+.slider-future {
+    color: #545454;
+}
+.slider-active {
+    color: orangered;
+    background-image: url('slider.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    min-width: 28px !important; /* Override the default width */
+    min-height: 16px;
+}
+
+/* Slider Timeline Data */
+.slider-timeline {
+    border-color: #333;
+    border-width: 1px;
+    border-radius: 3px;
+    background-color: #b1e0e6;
+
+    border-style: solid;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    width: 100%;
+}
+.slider-timeline-past {
+    opacity: 75%;
+}
+
+.slider-timeline-future {
+    opacity: 25%;
+}
+
+.slider-timeline-active {
+    opacity: 100%;
+}
+
+.slider-info-one-step {
+    font-size: 0.7em;
+    float: left;
+}
+.slider-info {
+    border-radius: 15px;
+    padding: 5px;
+    margin: 2px;
+
+    border-width: 2px;
+    border-color: #CCCCCC33;
+    border-style: ridge;
+}
+.slider-info-elected {
+    background-color: lightgreen;
+}
+.slider-info-eliminated {
+    background-color: lightcoral;
+}
+.slider-info-otherdata {
+    background-color: lightgray;
+}
