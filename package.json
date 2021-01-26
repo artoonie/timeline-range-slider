@@ -1,0 +1,30 @@
+{
+  "name": "timeline-range-slider",
+  "version": "0.0.1",
+  "description": "A customizable range slider with a built-in timeline",
+  "main": "timeline-range-slider/slider.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/artoonie/timeline-range-slider.git"
+  },
+  "keywords": [
+    "range-slider",
+    "slider",
+    "timeline"
+  ],
+  "author": "Armin Samii",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/artoonie/timeline-range-slider/issues"
+  },
+  "homepage": "https://github.com/artoonie/timeline-range-slider#readme",
+  "devDependencies": {
+    "jest": "^26.6.3"
+  }
+}

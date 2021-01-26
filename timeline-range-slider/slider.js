@@ -451,3 +451,5 @@ function createSliderAndTimeline(config) {
     setSliderValue(sliderData.sliderDiv,config.numTicks-1);
 }
 
+// In case of node.js
+exports.createSliderAndTimeline = createSliderAndTimeline
