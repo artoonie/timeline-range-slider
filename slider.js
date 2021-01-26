@@ -8,13 +8,15 @@ let sliders = {}
 /* Data about an in-progress mousedown */
 let activeSlideData = {}
 
-function createTick() {
+function createTick(maxWidth) {
     /**
      * Creates a single tick mark
+     * @param {float} maxWidth
      * @return the div containing the tick
      */
     let div = document.createElement('div');
     div.setAttribute('class', 'slider-item');
+    div.style.maxWidth = maxWidth + "px";
 
     const newContent = document.createTextNode("•");
     div.appendChild(newContent);
@@ -85,7 +87,7 @@ function setPosition(e) {
     const x = e.clientX - rect.left;
     const targetData = sliders[activeSlideData.target];
 
-    const timelineWidth = targetData.timelineDiv.clientWidth;
+    const timelineWidth = targetData.sliderDiv.clientWidth;
     const widthPerTick = timelineWidth / targetData.ticks.length;
     const value = Math.floor(x / widthPerTick);
 
@@ -125,6 +127,27 @@ function setConfigDefaults(config) {
     if (config.tickLabelPrefix === undefined) {
         config.tickLabelPrefix = "Round ";
     }
+    if (config.hideTimelineInitially === undefined) {
+        config.hideTimelineInitially = true;
+    }
+}
+
+function expandTimeline(sliderData) {
+    /**
+     * Expands the timeline, updating classes, text, and borders
+     */
+    sliderData.expandCollapseDiv.innerHTML = '[-] Collapse Details';
+    sliderData.timelineDiv.style.display = 'block';
+    sliderData.sliderDiv.classList.remove('slider-when-timeline-visible');
+}
+
+function collapseTimeline(sliderData) {
+    /**
+     * Collapses the timeline, updating classes, text, and borders
+     */
+    sliderData.expandCollapseDiv.innerHTML = '[+] Expand Details';
+    sliderData.timelineDiv.style.display = 'none';
+    sliderData.sliderDiv.classList.add('slider-when-timeline-visible');
 }
 
 function createSlider(sliderData, numTicks) {
@@ -136,8 +159,9 @@ function createSlider(sliderData, numTicks) {
     sliderDiv.className = 'slider';
 
     let ticks = [];
+    const maxWidth = numTicks / sliderData.width;
     for (let i = 0; i < numTicks; ++i) {
-        const tick = createTick();
+        const tick = createTick(maxWidth);
         const elem = sliderDiv.appendChild(tick);
         ticks.push(elem);
     }
@@ -146,6 +170,25 @@ function createSlider(sliderData, numTicks) {
 
     sliderData.ticks = ticks;
     sliderData.sliderDiv = sliderDiv;
+}
+
+function createExpandCollapseButton(sliderData) {
+    /**
+     * Creates the [+]/[-] Expand/Collapse Detail
+     */
+    let div = document.createElement('div');
+    div.className = 'expand-collapse-button';
+
+    sliderData.expandCollapseDiv = div;
+
+    div.onclick = function() {
+        if (sliderData.timelineDiv.style.display === 'none') {
+            expandTimeline(sliderData);
+        } else {
+            collapseTimeline(sliderData);
+        }
+
+    }
 }
 
 function createSliderAndTimeline(outerDivId, config) {
@@ -172,7 +215,10 @@ function createSliderAndTimeline(outerDivId, config) {
 
         /* To be filled out by createTimeline */
         'currentIndex': null,
-        'timelineData': null
+        'timelineData': null,
+
+        /* To be filled out by createExpandCollapseButton */
+        'expandCollapseDiv': null
     };
 
     // Create slider
@@ -183,8 +229,18 @@ function createSliderAndTimeline(outerDivId, config) {
     createTimeline(sliderData, createFakeData(config.numTicks), config.width);
     outerDiv.appendChild(sliderData.timelineDiv);
 
+    // Create "Expand Details" button
+    createExpandCollapseButton(sliderData);
+    outerDiv.appendChild(sliderData.expandCollapseDiv);
+
     // Store data
     sliders[sliderData.sliderDiv] = sliderData;
+
+    if (config.hideTimelineInitially) {
+        collapseTimeline(sliderData);
+    } else {
+        expandTimeline(sliderData);
+    }
 
     // Move slider to end
     setSliderValue(sliderData.sliderDiv,config.numTicks-1);
@@ -298,9 +354,9 @@ function createFakeData(numTicks) {
         className: "timeline-info-eliminated",
         moreInfoText: "Someone all gone!"
     }, {
-        summaryText: "Something la la",
+        summaryText: "Something else",
         className: "timeline-info-other-data",
-        moreInfoText: "Someone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thingSomeone did thing!"
+        moreInfoText: "Some other thing happened"
     },
     ]
     let allData = [];
