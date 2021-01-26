@@ -6,6 +6,21 @@ title: Basic Example
 <script type="text/javascript" src="timeline-range-slider/slider.js"></script>
 
 <h1>A lightweight, dependency-free range slider</h1>
+
+The default configuration gives you a slider with a collapsible timeline:
+<div>
+    <div id="wrapper-0">
+    </div>
+
+    <script type="text/javascript">
+        createSliderAndTimeline({
+            wrapperDivId: 'wrapper-0',
+            numTicks: 40
+        });
+    </script>
+</div>
+
+<h2>Features & Benefits</h2>
 Features:
 <ul>
     <li>A mobile-friendly range slider,</li>
@@ -22,7 +37,8 @@ Benefits:
     <li>Permissive license</li>
 </ul>
 
-<h2>Example: Just the defaults</h2>
+<h2>Examples</h2>
+<h3>#1: Default</h3>
 <div>
     <div id="wrapper-1">
     </div>
@@ -35,11 +51,30 @@ Benefits:
     </script>
 </div>
 
-<h2>Example: Customization</h2>
+<h3>#2: Dark theme</h3>
 <div>
     <div id="wrapper-2">
         <h6 id="callback-container" style="text-align: center; margin-left: auto; margin-right: auto;"></h6>
     </div>
+
+    <style>
+        #wrapper-2 {
+            font-family: "Roboto Light";
+            color: whitesmoke;
+        }
+        #wrapper-2 .timeline-info {
+            color: #1a0031;
+        }
+        #wrapper-2 > .slider {
+            background-color: #1a0031;
+        }
+        #wrapper-2 > .timeline {
+            background-color: #1a0031;
+        }
+        #wrapper-2 > .expand-collapse-button {
+            background-color: #1a0031;
+        }
+    </style>
 
     <script type="text/javascript">
         function sliderValueChanged(value) {
@@ -50,12 +85,59 @@ Benefits:
             numTicks: 5,
             tickText: '⋆',
             color: ['#009ee3', '#00a3c9', '#00a6aa', '#00a989', '#2eac66'],
-            hideTimelineInitially: false,
             sliderValueChanged: sliderValueChanged,
-            tickValuePrefix: "Epoch"
+            tickLabelPrefix: "Epoch "
         });
     </script>
 </div>
+
+<h3>#3: Small and continuous</h3>
+<div>
+    <div id="wrapper-3">
+    </div>
+
+    <style>
+        #wrapper-3 {
+            font-family: "Roboto Light";
+            color: whitesmoke;
+        }
+        #wrapper-3 .timeline-info {
+            color: #1a0031;
+        }
+        #wrapper-3 .slider-item {
+            margin-left: -10px;
+            margin-right: -10px;
+        }
+        #wrapper-3 > .slider {
+            background-color: #1a0031;
+            background-image: linear-gradient(45deg, darkblue,indigo,violet);
+        }
+        #wrapper-3 > .timeline {
+            background-image: linear-gradient(45deg, darkblue,purple,pink);
+        }
+        #wrapper-3 > .expand-collapse-button {
+            background-image: linear-gradient(45deg, darkblue,indigo,violet);
+        }
+    </style>
+    <script type="text/javascript">
+        function sliderValueChanged(value) {
+            document.getElementById('callback-container').innerHTML = "Example label for Epoch #" + (value+1);
+        }
+        createSliderAndTimeline({
+            wrapperDivId: 'wrapper-3',
+            numTicks: 40,
+            width: 300,
+            tickLabelPrefix: "Year ",
+            hideTimelineInitially: false,
+            tickText: '—',
+            color: 'white'
+        });
+    </script>
+</div>
+
+<h2>Usage</h2>
+<h3>Installation</h3>
+Minify yourself, I guess? CDN TBD
 
 {% capture p1 %}{% include_relative docs/config.md %}{% endcapture %}
 {{ p1 | markdownify }}

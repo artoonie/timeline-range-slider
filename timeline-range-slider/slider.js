@@ -143,6 +143,27 @@ function onSliderDragEnd(event) {
     event.preventDefault();
 }
 
+function validateConfig(config) {
+    // Validate tickData
+    if (config.tickData.length !== config.numTicks) {
+        throw new Error("tickData length must be equal to numTicks")
+    }
+    config.tickData.map(function(oneTickData){
+        oneTickData.map(function(tickDatum) {
+            if (tickDatum.summaryText === undefined) {
+                throw new Error("Each tickData must have a summary")
+            }
+        })
+    })
+
+    // Validate color
+    if(Array.isArray(config.color)) {
+        if (config.color.length !== config.numTicks) {
+            throw new Error('color config must be a string or a list of length numTicks')
+        }
+    }
+}
+
 function setConfigDefaults(config) {
     /**
      * If any option is not provided, chooses a sane default
@@ -172,18 +193,19 @@ function setConfigDefaults(config) {
     }
     if (config.color === undefined) {
         config.color = 'orangered';
-    } else if(Array.isArray(config.color)) {
-        if (config.color.length !== config.numTicks) {
-            throw new Error('color config must be a string or a list of length numTicks')
-        }
     }
+    if (config.tickData === undefined) {
+        config.tickData = createFakeData(config.numTicks);
+    }
+
+    validateConfig(config);
 }
 
 function expandTimeline(sliderData) {
     /**
      * Expands the timeline, updating classes, text, and borders
      */
-    sliderData.expandCollapseDiv.innerHTML = '[-] Collapse Details';
+    sliderData.expandCollapseDiv.innerHTML = '[—] Collapse Details';
     sliderData.timelineDiv.style.display = 'block';
     sliderData.sliderDiv.classList.remove('slider-when-timeline-visible');
 }
@@ -207,7 +229,7 @@ function createSlider(sliderData, numTicks) {
     sliderDiv.className = 'slider';
 
     let ticks = [];
-    const maxWidth = numTicks / sliderData.width;
+    const maxWidth = sliderData.width / numTicks;
     for (let i = 0; i < numTicks; ++i) {
         const tickColor = Array.isArray(sliderData.color) ? sliderData.color[i] : sliderData.color;
         const tick = createTick(maxWidth, sliderData.tickText, tickColor);
@@ -310,17 +332,25 @@ function createTimeline(sliderData, listOfTickData) {
 
         tickData.map(function(tickDatum) {
             let div = document.createElement('div');
-            div.setAttribute('class', 'timeline-info ' + tickDatum.className);
             div.innerHTML = tickDatum.summaryText;
+            div.classList.add('timeline-info');
 
-            let moreInfoLink = document.createElement('a');
-            moreInfoLink.innerHTML = '?';
-            moreInfoLink.setAttribute('class', 'question-mark');
-            moreInfoLink.setAttribute('data-label', tickDatum.moreInfoText);
-            moreInfoLink.onmouseover = showHelpTooltip;
-            moreInfoLink.onmouseout = hideHelpTooltip;
+            // Optional class name
+            if (tickDatum.className) {
+                div.classList.add(tickDatum.className);
+            }
 
-            div.appendChild(moreInfoLink);
+            // Optional tooltip
+            if (tickDatum.moreInfoText) {
+                let moreInfoLink = document.createElement('a');
+                moreInfoLink.innerHTML = '?';
+                moreInfoLink.setAttribute('class', 'question-mark');
+                moreInfoLink.setAttribute('data-label', tickDatum.moreInfoText);
+                moreInfoLink.onmouseover = showHelpTooltip;
+                moreInfoLink.onmouseout = hideHelpTooltip;
+
+                div.appendChild(moreInfoLink);
+            }
 
             tickDiv.appendChild(div);
         })
@@ -339,17 +369,15 @@ function createTimeline(sliderData, listOfTickData) {
 
 function createFakeData(numTicks) {
     const datumOptions = [{
-        summaryText: "Someone elected",
+        summaryText: "Something good",
         className: "timeline-info-elected",
-        moreInfoText: "Someone reached a threshold!"
+        moreInfoText: "Like a birth or the end of wars"
     }, {
-        summaryText: "Someone eliminated",
+        summaryText: "Something bad",
         className: "timeline-info-eliminated",
-        moreInfoText: "Someone all gone!"
+        moreInfoText: "As if millions of voices suddenly cried out in terror and were suddenly silenced"
     }, {
-        summaryText: "Something else",
-        className: "timeline-info-other-data",
-        moreInfoText: "Some other thing happened"
+        summaryText: "Chance event!"
     },
     ]
     let allData = [];
