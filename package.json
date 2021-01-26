@@ -1,6 +1,6 @@
 {
   "name": "timeline-range-slider",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A customizable range slider with a built-in timeline",
   "main": "timeline-range-slider/slider.js",
   "directories": {
