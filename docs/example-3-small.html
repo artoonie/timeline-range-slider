@@ -1,0 +1,42 @@
+<div>
+    <div id="wrapper-3">
+    </div>
+
+    <style>
+        #wrapper-3 {
+            font-family: "Roboto Light";
+            color: whitesmoke;
+        }
+        #wrapper-3 .timeline-info {
+            color: #1a0031;
+        }
+        #wrapper-3 .slider-item {
+            margin-left: -10px;
+            margin-right: -10px;
+        }
+        #wrapper-3 > .slider {
+            background-color: #1a0031;
+            background-image: linear-gradient(45deg, darkblue,indigo,violet);
+        }
+        #wrapper-3 > .timeline {
+            background-image: linear-gradient(45deg, darkblue,purple,pink);
+        }
+        #wrapper-3 > .expand-collapse-button {
+            background-image: linear-gradient(45deg, darkblue,indigo,violet);
+        }
+    </style>
+    <script type="text/javascript">
+        function sliderValueChanged(value) {
+            document.getElementById('callback-container').innerHTML = "Example label for Epoch #" + (value+1);
+        }
+        createSliderAndTimeline({
+            wrapperDivId: 'wrapper-3',
+            numTicks: 40,
+            width: 300,
+            tickLabelPrefix: "Year ",
+            hideTimelineInitially: false,
+            tickText: '—',
+            color: 'white'
+        });
+    </script>
+</div>
