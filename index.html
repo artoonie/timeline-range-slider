@@ -6,12 +6,20 @@ title: Basic Example
 <script type="text/javascript" src="timeline-range-slider/slider.js"></script>
 
 <h1>A lightweight, dependency-free range slider</h1>
+Features:
 <ul>
-    <li>Vanilla Javascript</li>
-    <li>Vanilla CSS</li>
-    <li>No external libraries</li>
+    <li>A mobile-friendly range slider,</li>
+    <li>With a collapsible events timeline to list events which occurred at each index in the slider,</li>
+    <li>With tooltips for deeper explanations of the summaries</li>
+</ul>
+
+Benefits:
+<ul>
+    <li>Vanilla Javascript & CSS</li>
+    <li>No external libraries: no jQuery, bootstrap, Sass, etc</li>
     <li>Simple javascript configuration with sane defaults</li>
-    <li>Easy-to-override CSS</li>
+    <li>Simple, easy-to-override CSS</li>
+    <li>Permissive license</li>
 </ul>
 
 <h2>Example: Just the defaults</h2>
@@ -35,7 +43,7 @@ title: Basic Example
 
     <script type="text/javascript">
         function sliderValueChanged(value) {
-            document.getElementById('callback-container').innerHTML = "Custom label for Epoch #" + (value+1);
+            document.getElementById('callback-container').innerHTML = "Example label for Epoch #" + (value+1);
         }
         createSliderAndTimeline({
             wrapperDivId: 'wrapper-2',

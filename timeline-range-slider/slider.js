@@ -5,7 +5,7 @@
 /* Storing slider data. Maps element to info about it. */
 let sliders = {}
 
-/* Data about an in-progress mousedown */
+/* Data about an in-progress mousedown or touchstart */
 let activeSlideData = {}
 
 function createTick(maxWidth, tickText, tickColor) {
@@ -88,12 +88,22 @@ function setSliderValue(elem, value) {
     }
 }
 
-function setPosition(e) {
+function clientXOfEvent(event) {
+    /**
+     * Gets the clientX of a mouseevent or a touchevent
+     */
+    if (event.targetTouches !== undefined) {
+        return event.targetTouches[0].clientX;
+    }
+    return event.clientX;
+}
+
+function setPosition(event) {
     /**
      * Sets the active position of the slider based on an event
      */
     const rect = activeSlideData.target.getBoundingClientRect();
-    const x = e.clientX - rect.left;
+    const x = clientXOfEvent(event) - rect.left;
     const targetData = sliders[activeSlideData.target.id];
 
     const timelineWidth = targetData.sliderDiv.clientWidth;
@@ -113,12 +123,24 @@ function onSliderDragStart(event) {
     };
     document.addEventListener("mousemove", onSliderDrag);
     document.addEventListener("mouseup", onSliderDragEnd);
+    document.addEventListener("touchmove", onSliderDrag);
+    document.addEventListener("touchend", onSliderDragEnd);
     setPosition(event);
+
+    // Prevent both mousedown and touchstart from firing
+    event.preventDefault();
 }
 
-function onSliderDragEnd() {
+function onSliderDragEnd(event) {
     document.removeEventListener("mousemove", onSliderDrag);
     document.removeEventListener("mouseup", onSliderDragEnd);
+
+    document.removeEventListener("touchmove", onSliderDrag);
+    document.removeEventListener("touchend", onSliderDragEnd);
+    document.removeEventListener("touchcancel", onSliderDragEnd);
+
+    // Prevent both touchend and mouseup from firing
+    event.preventDefault();
 }
 
 function setConfigDefaults(config) {
@@ -193,6 +215,7 @@ function createSlider(sliderData, numTicks) {
         ticks.push(elem);
     }
 
+    sliderDiv.addEventListener("touchstart", onSliderDragStart);
     sliderDiv.addEventListener("mousedown", onSliderDragStart);
 
     sliderData.ticks = ticks;
@@ -214,7 +237,6 @@ function createExpandCollapseButton(sliderData) {
         } else {
             collapseTimeline(sliderData);
         }
-
     }
 }
 
@@ -244,11 +266,12 @@ function showHelpTooltip(event) {
     let div = document.createElement('div');
     div.id = 'timeline-info-tooltip';
     div.innerHTML = helpText;
-    div.style.top = event.target.getBoundingClientRect().top + "px";
-    div.style.left = event.target.getBoundingClientRect().right + "px";
+    div.style.position = 'fixed';
+    div.style.left = (event.clientX+5) + 'px';
+    div.style.top = (event.clientY-30) + 'px';
 
     // To ensure tooltip is never transparent,
-    // find the first non-transparent element in the hierarchy
+    // find the first non-transparent element in the hierarchy and add it there
     const firstNonTransparentElement = event.target.parentElement.parentElement.parentElement;
     firstNonTransparentElement.appendChild(div);
 }
