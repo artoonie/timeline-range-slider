@@ -8,17 +8,20 @@ let sliders = {}
 /* Data about an in-progress mousedown */
 let activeSlideData = {}
 
-function createTick(maxWidth) {
+function createTick(maxWidth, tickText, tickColor) {
     /**
      * Creates a single tick mark
-     * @param {float} maxWidth
+     * @param {float} maxWidth maximum width of this tick
+     * @param {string} tickText the tick marker text
+     * @param {string} tickColor the color of active ticks
      * @return the div containing the tick
      */
     let div = document.createElement('div');
     div.setAttribute('class', 'slider-item');
     div.style.maxWidth = maxWidth + "px";
+    div.style.color = tickColor;
 
-    const newContent = document.createTextNode("•");
+    const newContent = document.createTextNode(tickText);
     div.appendChild(newContent);
     return div;
 }
@@ -70,13 +73,19 @@ function setSliderValue(elem, value) {
 
     // Edit text for each tick
     if (sliderData.currentIndex != null) {
-        sliderData.ticks[sliderData.currentIndex].innerHTML = "•";
+        sliderData.ticks[sliderData.currentIndex].innerHTML = sliderData.tickText;
     }
     sliderData.ticks[value].innerHTML = "";
 
     sliderData.currentIndex = value;
 
-    notifySliderChangedTo(elem, value);
+    // Update the timeline with this value
+    updateTimeline(elem, value);
+
+    // Optional callback
+    if (sliderData.sliderValueChanged) {
+        sliderData.sliderValueChanged(value);
+    }
 }
 
 function setPosition(e) {
@@ -133,6 +142,19 @@ function setConfigDefaults(config) {
     if (config.hideTimelineInitially === undefined) {
         config.hideTimelineInitially = true;
     }
+    if (config.sliderValueChanged === undefined) {
+        config.sliderValueChanged = null;
+    }
+    if (config.tickText === undefined) {
+        config.tickText = "•";
+    }
+    if (config.color === undefined) {
+        config.color = 'orangered';
+    } else if(Array.isArray(config.color)) {
+        if (config.color.length !== config.numTicks) {
+            throw new Error('color config must be a string or a list of length numTicks')
+        }
+    }
 }
 
 function expandTimeline(sliderData) {
@@ -165,7 +187,8 @@ function createSlider(sliderData, numTicks) {
     let ticks = [];
     const maxWidth = numTicks / sliderData.width;
     for (let i = 0; i < numTicks; ++i) {
-        const tick = createTick(maxWidth);
+        const tickColor = Array.isArray(sliderData.color) ? sliderData.color[i] : sliderData.color;
+        const tick = createTick(maxWidth, sliderData.tickText, tickColor);
         const elem = sliderDiv.appendChild(tick);
         ticks.push(elem);
     }
@@ -195,71 +218,14 @@ function createExpandCollapseButton(sliderData) {
     }
 }
 
-function createSliderAndTimeline(config) {
-    /**
-     * Creates the slider and the timeline
-     * @param options User-controlled options, see the README
-     */
-
-    setConfigDefaults(config);
-
-    // Set style of outer div
-    let outerDiv = document.getElementById(config.wrapperDivId);
-    outerDiv.style.maxWidth = config.width + "px";
-    outerDiv.style.width = "100%";
-
-    // Set up data
-    let sliderData = {
-        'id': config.wrapperDivId,
-        'width': config.width,
-
-        /* To be filled out by createSlider */
-        'ticks': null,
-        'sliderDiv': null,
-
-        /* To be filled out by createTimeline */
-        'currentIndex': null,
-        'timelineData': null,
-
-        /* To be filled out by createExpandCollapseButton */
-        'expandCollapseDiv': null
-    };
-
-    // Create slider
-    createSlider(sliderData, config.numTicks);
-    outerDiv.appendChild(sliderData.sliderDiv);
-
-    // Create timeline
-    createTimeline(sliderData, createFakeData(config.numTicks), config.width);
-    outerDiv.appendChild(sliderData.timelineDiv);
-
-    // Create "Expand Details" button
-    createExpandCollapseButton(sliderData);
-    outerDiv.appendChild(sliderData.expandCollapseDiv);
-
-    // Store data
-    sliders[sliderData.sliderDiv.id] = sliderData;
-
-    if (config.hideTimelineInitially) {
-        collapseTimeline(sliderData);
-    } else {
-        expandTimeline(sliderData);
-    }
-
-    // Move slider to end
-    setSliderValue(sliderData.sliderDiv,config.numTicks-1);
-}
-
 /*
  * Part 2 of this file: timeline functionality
  */
-function notifySliderChangedTo(elem, value) {
+function updateTimeline(elem, value) {
     /**
      * Receives a notification from the slider that the slider changed
      */
     const sliderData = sliders[elem.id];
-
-    document.getElementById('round-number').innerHTML = "Round " + (value+1);
 
     setClassForElements(sliderData.timelineDivsPerTick, 'timeline-column', value);
 
@@ -315,7 +281,7 @@ function createTimeline(sliderData, listOfTickData) {
         tickDiv.setAttribute('class', 'timeline-info-one-step');
 
         let headerDiv = document.createElement('div');
-        headerDiv.innerHTML = "Round " + (i+1);
+        headerDiv.innerHTML = sliderData.tickLabelPrefix + (i+1);
         headerDiv.setAttribute('class', 'timeline-header');
         tickDiv.appendChild(headerDiv);
 
@@ -374,3 +340,63 @@ function createFakeData(numTicks) {
     }
     return allData;
 }
+
+function createSliderAndTimeline(config) {
+    /**
+     * Creates the slider and the timeline
+     * @param options User-controlled options, see the README
+     */
+
+    setConfigDefaults(config);
+
+    // Set style of outer div
+    let outerDiv = document.getElementById(config.wrapperDivId);
+    outerDiv.style.maxWidth = config.width + "px";
+    outerDiv.style.width = "100%";
+
+    // Set up data
+    let sliderData = {
+        'id': config.wrapperDivId,
+        'width': config.width,
+        'tickText': config.tickText,
+        'color': config.color,
+        'tickLabelPrefix': config.tickLabelPrefix,
+        'sliderValueChanged': config.sliderValueChanged,
+
+        /* To be filled out by createSlider */
+        'ticks': null,
+        'sliderDiv': null,
+
+        /* To be filled out by createTimeline */
+        'currentIndex': null,
+        'timelineData': null,
+
+        /* To be filled out by createExpandCollapseButton */
+        'expandCollapseDiv': null
+    };
+
+    // Create slider
+    createSlider(sliderData, config.numTicks);
+    outerDiv.appendChild(sliderData.sliderDiv);
+
+    // Create timeline
+    createTimeline(sliderData, createFakeData(config.numTicks), config.width);
+    outerDiv.appendChild(sliderData.timelineDiv);
+
+    // Create "Expand Details" button
+    createExpandCollapseButton(sliderData);
+    outerDiv.appendChild(sliderData.expandCollapseDiv);
+
+    // Store data
+    sliders[sliderData.sliderDiv.id] = sliderData;
+
+    if (config.hideTimelineInitially) {
+        collapseTimeline(sliderData);
+    } else {
+        expandTimeline(sliderData);
+    }
+
+    // Move slider to end
+    setSliderValue(sliderData.sliderDiv,config.numTicks-1);
+}
+

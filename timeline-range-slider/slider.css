@@ -33,13 +33,11 @@ body {
 }
 
 .slider-past {
-    color: orangered;
 }
 .slider-future {
-    color: #545454;
+    color: #545454 !important;
 }
 .slider-active {
-    color: orangered;
     background-image: url('slider.png');
     background-repeat: no-repeat;
     background-position: center;

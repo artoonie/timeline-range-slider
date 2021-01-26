@@ -5,30 +5,50 @@ title: Basic Example
 <link rel="stylesheet" href="timeline-range-slider/slider.css">
 <script type="text/javascript" src="timeline-range-slider/slider.js"></script>
 
-<h1>A basic example</h1>
+<h1>A lightweight, dependency-free range slider</h1>
+<ul>
+    <li>Vanilla Javascript</li>
+    <li>Vanilla CSS</li>
+    <li>No external libraries</li>
+    <li>Simple javascript configuration with sane defaults</li>
+    <li>Easy-to-override CSS</li>
+</ul>
+
+<h2>Example: Just the defaults</h2>
 <div>
     <div id="wrapper-1">
     </div>
 
-    <h2 id="round-number"></h2>
     <script type="text/javascript">
         createSliderAndTimeline({
             wrapperDivId: 'wrapper-1',
-            numTicks: 40,
-            width: 600
+            numTicks: 40
         });
     </script>
 </div>
 
-<h2>A wholly different Example</h2>
+<h2>Example: Customization</h2>
 <div>
     <div id="wrapper-2">
+        <h6 id="callback-container" style="text-align: center; margin-left: auto; margin-right: auto;"></h6>
     </div>
 
     <script type="text/javascript">
+        function sliderValueChanged(value) {
+            document.getElementById('callback-container').innerHTML = "Custom label for Epoch #" + (value+1);
+        }
         createSliderAndTimeline({
             wrapperDivId: 'wrapper-2',
-            numTicks: 10
+            numTicks: 5,
+            tickText: '⋆',
+            color: ['#009ee3', '#00a3c9', '#00a6aa', '#00a989', '#2eac66'],
+            hideTimelineInitially: false,
+            sliderValueChanged: sliderValueChanged,
+            tickValuePrefix: "Epoch"
         });
     </script>
 </div>
+
+{% capture p1 %}{% include_relative docs/config.md %}{% endcapture %}
+{{ p1 | markdownify }}
+
