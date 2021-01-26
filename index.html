@@ -1,0 +1,34 @@
+---
+layout: default
+title: Basic Example
+---
+<link rel="stylesheet" href="timeline-range-slider/slider.css">
+<script type="text/javascript" src="timeline-range-slider/slider.js"></script>
+
+<h1>A basic example</h1>
+<div>
+    <div id="wrapper-1">
+    </div>
+
+    <h2 id="round-number"></h2>
+    <script type="text/javascript">
+        createSliderAndTimeline({
+            wrapperDivId: 'wrapper-1',
+            numTicks: 40,
+            width: 600
+        });
+    </script>
+</div>
+
+<h2>A wholly different Example</h2>
+<div>
+    <div id="wrapper-2">
+    </div>
+
+    <script type="text/javascript">
+        createSliderAndTimeline({
+            wrapperDivId: 'wrapper-2',
+            numTicks: 10
+        });
+    </script>
+</div>

@@ -61,7 +61,7 @@ function setSliderValue(elem, value) {
     /**
      * Sets the value of the slider, updating classes and notifying the timeline
      */
-    const sliderData = sliders[elem];
+    const sliderData = sliders[elem.id];
 
     value = Math.min(value, sliderData.ticks.length-1);
     value = Math.max(value, 0);
@@ -85,7 +85,7 @@ function setPosition(e) {
      */
     const rect = activeSlideData.target.getBoundingClientRect();
     const x = e.clientX - rect.left;
-    const targetData = sliders[activeSlideData.target];
+    const targetData = sliders[activeSlideData.target.id];
 
     const timelineWidth = targetData.sliderDiv.clientWidth;
     const widthPerTick = timelineWidth / targetData.ticks.length;
@@ -118,6 +118,9 @@ function setConfigDefaults(config) {
      * @param options A set of overriding config values, edits in-place
      * @throws Error if any required option is not provided
      */
+    if (config.wrapperDivId === undefined) {
+        throw new Error("wrapperDivId is required");
+    }
     if (config.numTicks === undefined) {
         throw new Error("numTicks is required");
     }
@@ -156,6 +159,7 @@ function createSlider(sliderData, numTicks) {
      * Fills out sliderData.ticks and sliderData.sliderDiv
      */
     let sliderDiv = document.createElement('div');
+    sliderDiv.id = '_sliderDiv_' + sliderData.id;
     sliderDiv.className = 'slider';
 
     let ticks = [];
@@ -191,22 +195,22 @@ function createExpandCollapseButton(sliderData) {
     }
 }
 
-function createSliderAndTimeline(outerDivId, config) {
+function createSliderAndTimeline(config) {
     /**
      * Creates the slider and the timeline
-     * @param outerDivId An empty div into which to place them
      * @param options User-controlled options, see the README
      */
 
     setConfigDefaults(config);
 
     // Set style of outer div
-    let outerDiv = document.getElementById(outerDivId);
+    let outerDiv = document.getElementById(config.wrapperDivId);
     outerDiv.style.maxWidth = config.width + "px";
     outerDiv.style.width = "100%";
 
     // Set up data
     let sliderData = {
+        'id': config.wrapperDivId,
         'width': config.width,
 
         /* To be filled out by createSlider */
@@ -234,7 +238,7 @@ function createSliderAndTimeline(outerDivId, config) {
     outerDiv.appendChild(sliderData.expandCollapseDiv);
 
     // Store data
-    sliders[sliderData.sliderDiv] = sliderData;
+    sliders[sliderData.sliderDiv.id] = sliderData;
 
     if (config.hideTimelineInitially) {
         collapseTimeline(sliderData);
@@ -253,7 +257,7 @@ function notifySliderChangedTo(elem, value) {
     /**
      * Receives a notification from the slider that the slider changed
      */
-    const sliderData = sliders[elem];
+    const sliderData = sliders[elem.id];
 
     document.getElementById('round-number').innerHTML = "Round " + (value+1);
 
@@ -370,9 +374,3 @@ function createFakeData(numTicks) {
     }
     return allData;
 }
-
-const config = {
-    numTicks: 40,
-    width: 600
-}
-createSliderAndTimeline('slider-timeline-wrapper', config);
