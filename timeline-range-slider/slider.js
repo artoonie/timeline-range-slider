@@ -217,8 +217,15 @@ function expandTimeline(sliderData) {
      * Expands the timeline, updating classes, text, and borders
      */
     sliderData.expandCollapseDiv.innerHTML = '[—] Collapse Details';
-    sliderData.timelineDiv.style.display = 'block';
+    sliderData.timelineDiv.style.maxHeight = "999px";
+    sliderData.timelineDiv.style.opacity = 1;
     sliderData.sliderDiv.classList.remove('slider-when-timeline-visible');
+
+    // Restore original padding + border
+    if (sliderData.timelineDivOriginalPadding != null) {
+      sliderData.timelineDiv.style.padding = sliderData.timelineDivOriginalPadding;
+      sliderData.timelineDiv.style.border = sliderData.timelineDivOriginalBorder;
+    }
 
     sliderData.isTimelineVisible = true;
 
@@ -230,8 +237,16 @@ function collapseTimeline(sliderData) {
     /**
      * Collapses the timeline, updating classes, text, and borders
      */
+
+    // Store original padding + border to be restored during expansion
+    sliderData.timelineDivOriginalPadding = sliderData.timelineDiv.style.padding;
+    sliderData.timelineDivOriginalBorder = sliderData.timelineDiv.style.border;
+
     sliderData.expandCollapseDiv.innerHTML = '[+] Expand Details';
-    sliderData.timelineDiv.style.display = 'none';
+    sliderData.timelineDiv.style.maxHeight = 0;
+    sliderData.timelineDiv.style.opacity = 0;
+    sliderData.timelineDiv.style.padding = 0;
+    sliderData.timelineDiv.style.border = 0;
     sliderData.sliderDiv.classList.add('slider-when-timeline-visible');
 
     sliderData.isTimelineVisible = false;
@@ -418,8 +433,6 @@ function animateFrontToBack(sliderData) {
     sliderData.isAnimationInProgress = true;
     
     let doCollapseTimelineWhenDone = false;
-          console.log(sliderData.showTimelineWhileAnimating)
-          console.log(!sliderData.isTimelineVisible)
     if (sliderData.showTimelineWhileAnimating && !sliderData.isTimelineVisible) {
         doCollapseTimelineWhenDone = true;
         expandTimeline(sliderData);
@@ -428,16 +441,25 @@ function animateFrontToBack(sliderData) {
     triggerNextAnimation(sliderData, 0, doCollapseTimelineWhenDone);
 }
 
-function triggerNextAnimation(sliderData, index, doCollapseTimelineWhenDone) {
-    window.requestAnimationFrame(function() {
+function triggerNextAnimation(sliderData, index, doCollapseTimelineWhenDone, startTimestamp) {
+    window.requestAnimationFrame(function(currentTimestamp) {
+        if (startTimestamp === undefined)
+            startTimestamp = currentTimestamp;
+        const elapsed = currentTimestamp - startTimestamp;
+
         if (!sliderData.isAnimationInProgress) {
             // Canceled - don't collapse if user grabbed control
             return;
         }
+
+        if (elapsed < 33) { // Only animate every 66ms, in case of high screen refresh rates
+            triggerNextAnimation(sliderData, index, doCollapseTimelineWhenDone, startTimestamp);
+        }
+
         setSliderValue(sliderData, index);
 
         if (index < sliderData.ticks.length) {
-            triggerNextAnimation(sliderData, index+1, doCollapseTimelineWhenDone);
+            triggerNextAnimation(sliderData, index+1, doCollapseTimelineWhenDone, currentTimestamp);
         } else {
             sliderData.isAnimationInProgress = false;
 
@@ -492,7 +514,11 @@ function trs_createSliderAndTimeline(config) {
         'currentIndex': null,
 
         /* To be filled out by createExpandCollapseButton */
-        'expandCollapseDiv': null
+        'expandCollapseDiv': null,
+
+        /* To be filled out when contracting timeline */
+        'timelineDivOriginalPadding': null,
+        'timelineDivOriginalBorder': null,
     };
 
     // Create slider
