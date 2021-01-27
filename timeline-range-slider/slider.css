@@ -99,10 +99,10 @@ body {
 
     background-color: lightgray;
 }
-.timeline-info-elected {
+.timeline-info-good {
     background-color: lightgreen;
 }
-.timeline-info-eliminated {
+.timeline-info-bad {
     background-color: lightcoral;
 }
 
@@ -142,7 +142,7 @@ body {
 .expand-collapse-button {
     font-size: 0.7em;
 
-    width: 100px;
+    width: fit-content;
     padding: 2px 15px;
 
     text-align: center;
