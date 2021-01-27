@@ -17,10 +17,10 @@ def initialize_dynamic_lines():
 
 def initialize_static_lines():
     return [
-        '# A lightweight range slider with expandable timeline\n',
-        'See this project at [artoonie.github.io/timeline-range-slider](https://artoonie.github.io/timeline-range-slider)\n',
-        'The project page has dynamic sliders you can interact with.\n',
-        '![Node.js CI](https://github.com/artoonie/timeline-range-slider/workflows/Node.js%20CI/badge.svg)\n',
+        '# A lightweight range slider with expandable timeline\n\n',
+        'See this project at [artoonie.github.io/timeline-range-slider](https://artoonie.github.io/timeline-range-slider)\n\n',
+        'The project page has dynamic sliders you can interact with.\n\n',
+        '![Node.js CI](https://github.com/artoonie/timeline-range-slider/workflows/Node.js%20CI/badge.svg)\n\n',
     ]
 
 def isFileDataEqual(filename, expectedlines):
