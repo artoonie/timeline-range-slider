@@ -1,0 +1,38 @@
+<div>
+    <div id="wrapper-2">
+        <h6 id="callback-container" style="text-align: center; margin-left: auto; margin-right: auto;"></h6>
+    </div>
+
+    <style>
+        #wrapper-2 {
+            font-family: "Roboto Light";
+            color: whitesmoke;
+        }
+        #wrapper-2 .timeline-info {
+            color: #1a0031;
+        }
+        #wrapper-2 > .slider {
+            background-image: linear-gradient(10deg, #16034e, #31004a);
+        }
+        #wrapper-2 > .timeline {
+            background-image: linear-gradient(10deg, #16034e, #31004a);
+        }
+        #wrapper-2 > .expand-collapse-button {
+            background-image: linear-gradient(10deg, #16034e, #31004a);
+        }
+    </style>
+
+    <script type="text/javascript">
+        function sliderValueChanged(value) {
+            document.getElementById('callback-container').innerHTML = "Example label for Epoch #" + (value+1);
+        }
+        createSliderAndTimeline({
+            wrapperDivId: 'wrapper-2',
+            numTicks: 5,
+            tickText: '⋆',
+            color: ['#009ee3', '#00a3c9', '#00a6aa', '#00a989', '#2eac66'],
+            sliderValueChanged: sliderValueChanged,
+            tickLabelPrefix: "Epoch "
+        });
+    </script>
+</div>

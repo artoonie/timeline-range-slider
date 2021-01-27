@@ -28,3 +28,10 @@ jobs:
     - run: npm ci
     - run: npm run build --if-present
     - run: npm test
+  test-doc:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use python
+      uses: actions/setup-python@v2
+    - run: ./docs/test.sh

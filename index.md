@@ -1,3 +1,49 @@
+---
+layout: default
+---
+{% capture deps %}{% include_relative deps.html %}{% endcapture %}
+{{ deps }}
+
+# A lightweight, dependency-free range slider
+
+The default configuration gives you a slider with a collapsible timeline:
+{% capture ex0 %}{% include_relative example-0-teaser.html %}{% endcapture %}
+{{ ex0 }}
+
+## Features & Benefits
+Features:
+* A mobile-friendly range slider,
+* With a collapsible events timeline to list events which occurred at each index in the slider,
+* With tooltips for deeper explanations of the summaries
+
+Benefits:
+* Vanilla Javascript & CSS
+* No external libraries: no jQuery, bootstrap, Sass, etc
+* Simple javascript configuration with sane defaults
+* Simple, easy-to-override CSS
+* Permissive license
+
+## Examples
+### #1: Default
+{% capture ex1 %}{% include_relative example-1-default.html %}{% endcapture %}
+{{ ex1 }}
+
+### #2: Dark theme
+{% capture ex2 %}{% include_relative example-2-darkmode.html %}{% endcapture %}
+{{ ex2 }}
+
+### #3: Small and continuous
+{% capture ex3 %}{% include_relative example-3-small.html %}{% endcapture %}
+{{ ex3 }}
+
+## Usage
+
+### Installation
+Pick what works for your setup:
+1. `npm i @artoonie/timeline-range-slider`
+2. Download assets from [github package](https://github.com/artoonie/timeline-range-slider/packages/592040)
+3. Just download the files in the `timeline-range-slider` directory. Go on. I won't judge you.
+
 ### Configuration options
 Create a slider by calling:
 ```html
