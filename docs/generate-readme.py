@@ -35,11 +35,11 @@ def create_derived_files(input_filename, output_static_filename, output_dynamic_
     #    2. What file to include in the dynamic file?
     #    3. What file to include in the static file?
     magic_keys = {
-        '{{ deps }}\n': ('deps', 'deps.html', None),
-        '{{ ex0 }}\n':  ('ex0', 'example-0-teaser.html', 'docs/images/ex0.png'),
-        '{{ ex1 }}\n':  ('ex1', 'example-1-default.html', 'docs/images/ex0.png'),
-        '{{ ex2 }}\n':  ('ex2', 'example-2-darkmode.html', 'docs/images/ex2.png'),
-        '{{ ex3 }}\n':  ('ex3', 'example-3-small.html', 'docs/images/ex3.png')
+        '{{ deps }}\n': ('deps', 'docs/deps.html', None),
+        '{{ ex0 }}\n':  ('ex0', 'docs/example-0-teaser.html', 'docs/images/ex0.png'),
+        '{{ ex1 }}\n':  ('ex1', 'docs/example-1-default.html', 'docs/images/ex0.png'),
+        '{{ ex2 }}\n':  ('ex2', 'docs/example-2-darkmode.html', 'docs/images/ex2.png'),
+        '{{ ex3 }}\n':  ('ex3', 'docs/example-3-small.html', 'docs/images/ex3.png')
     }
 
     # Small enough to just read it all into memory,
