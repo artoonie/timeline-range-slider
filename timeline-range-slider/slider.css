@@ -61,7 +61,8 @@ body {
     overflow-y: auto;
     overflow-x: hidden;
 
-    display: none;
+    transition: max-height 0.6s ease-out,
+                opacity 0.3s ease-out;
 }
 
 .timeline-header {

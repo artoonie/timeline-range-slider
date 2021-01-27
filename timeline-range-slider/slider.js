@@ -5,8 +5,9 @@
 /* Storing slider data. Maps element to info about it. */
 let sliders = {}
 
-/* Data about an in-progress mousedown or touchstart */
-let activeSlideData = {}
+/* Data about an in-progress mousedown or touchstart.
+ * The id of this can index into sliders above. */
+let activeSlideTarget = null;
 
 function createTick(maxWidth, tickText, tickColor) {
     /**
@@ -60,12 +61,10 @@ function setClassForElements(elements, classBaseName, tickValue) {
     elements[tickValue].classList.remove(classNameFuture);
 }
 
-function setSliderValue(elem, value) {
+function setSliderValue(sliderData, value) {
     /**
      * Sets the value of the slider, updating classes and notifying the timeline
      */
-    const sliderData = sliders[elem.id];
-
     value = Math.min(value, sliderData.ticks.length-1);
     value = Math.max(value, 0);
 
@@ -80,7 +79,9 @@ function setSliderValue(elem, value) {
     sliderData.currentIndex = value;
 
     // Update the timeline with this value
-    updateTimeline(elem, value);
+    if (sliderData.isTimelineVisible) {
+      updateTimeline(sliderData, value);
+    }
 
     // Optional callback
     if (sliderData.sliderValueChanged) {
@@ -105,15 +106,18 @@ function setPosition(event) {
     /**
      * Sets the active position of the slider based on an event
      */
-    const rect = activeSlideData.target.getBoundingClientRect();
+    const rect = activeSlideTarget.getBoundingClientRect();
     const x = clientXOfEvent(event) - rect.left;
-    const targetData = sliders[activeSlideData.target.id];
+    const targetData = sliders[activeSlideTarget.id];
 
     const timelineWidth = targetData.sliderDiv.clientWidth;
     const widthPerTick = timelineWidth / targetData.ticks.length;
     const value = Math.floor(x / widthPerTick);
 
-    setSliderValue(activeSlideData.target, value);
+    const sliderData = sliders[activeSlideTarget.id];
+    setSliderValue(sliderData, value);
+
+    sliderData.isAnimationInProgress = false;
 }
 
 function onSliderDrag(event) {
@@ -121,9 +125,7 @@ function onSliderDrag(event) {
 }
 
 function onSliderDragStart(event) {
-    activeSlideData = {
-        'target': event.target
-    };
+    activeSlideTarget = event.target;
     document.addEventListener("mousemove", onSliderDrag);
     document.addEventListener("mouseup", onSliderDragEnd);
     document.addEventListener("touchmove", onSliderDrag);
@@ -200,6 +202,12 @@ function setConfigDefaults(config) {
     if (config.timelineData === undefined) {
         config.timelineData = createFakeData(config.numTicks);
     }
+    if (config.animateOnLoad === undefined) {
+        config.animateOnLoad = false;
+    }
+    if (config.showTimelineWhileAnimating === undefined) {
+        config.showTimelineWhileAnimating = true;
+    }
 
     validateConfig(config);
 }
@@ -209,17 +217,46 @@ function expandTimeline(sliderData) {
      * Expands the timeline, updating classes, text, and borders
      */
     sliderData.expandCollapseDiv.innerHTML = '[—] Collapse Details';
-    sliderData.timelineDiv.style.display = 'block';
+    sliderData.timelineDiv.style.maxHeight = "999px";
+    sliderData.timelineDiv.style.opacity = 1;
     sliderData.sliderDiv.classList.remove('slider-when-timeline-visible');
+
+    // Restore original padding + border
+    if (sliderData.timelineDivOriginalPadding != null) {
+      sliderData.timelineDiv.style.padding = sliderData.timelineDivOriginalPadding;
+      sliderData.timelineDiv.style.border = sliderData.timelineDivOriginalBorder;
+    }
+
+    sliderData.isTimelineVisible = true;
+
+    // Make sure the timeline is showing the right data
+    updateTimeline(sliderData, sliderData.currentIndex);
 }
 
 function collapseTimeline(sliderData) {
     /**
      * Collapses the timeline, updating classes, text, and borders
      */
+
+    // Store original padding + border to be restored during expansion
+    sliderData.timelineDivOriginalPadding = sliderData.timelineDiv.style.padding;
+    sliderData.timelineDivOriginalBorder = sliderData.timelineDiv.style.border;
+
     sliderData.expandCollapseDiv.innerHTML = '[+] Expand Details';
-    sliderData.timelineDiv.style.display = 'none';
+    sliderData.timelineDiv.style.maxHeight = 0;
+    sliderData.timelineDiv.style.opacity = 0;
+    sliderData.timelineDiv.style.padding = 0;
+    sliderData.timelineDiv.style.border = 0;
     sliderData.sliderDiv.classList.add('slider-when-timeline-visible');
+
+    sliderData.isTimelineVisible = false;
+}
+
+function convertWrapperDivIdToSliderDivId(wrapperDivId) {
+    /**
+     * Creates a unique slider div ID given the wrapper div ID
+     */
+    return '_sliderDiv_' + wrapperDivId;
 }
 
 function createSlider(sliderData, numTicks) {
@@ -228,7 +265,7 @@ function createSlider(sliderData, numTicks) {
      * Fills out sliderData.ticks and sliderData.sliderDiv
      */
     let sliderDiv = document.createElement('div');
-    sliderDiv.id = '_sliderDiv_' + sliderData.id;
+    sliderDiv.id = convertWrapperDivIdToSliderDivId(sliderData.id);
     sliderDiv.className = 'slider';
 
     let ticks = [];
@@ -247,6 +284,16 @@ function createSlider(sliderData, numTicks) {
     sliderData.sliderDiv = sliderDiv;
 }
 
+function toggleTimelineVisibility(sliderData) {
+    const isVisible = sliderData.isTimelineVisible;
+
+    if (!isVisible) {
+        expandTimeline(sliderData);
+    } else {
+        collapseTimeline(sliderData);
+    }
+}
+
 function createExpandCollapseButton(sliderData) {
     /**
      * Creates the [+]/[-] Expand/Collapse Detail
@@ -256,24 +303,16 @@ function createExpandCollapseButton(sliderData) {
 
     sliderData.expandCollapseDiv = div;
 
-    div.onclick = function() {
-        if (sliderData.timelineDiv.style.display === 'none') {
-            expandTimeline(sliderData);
-        } else {
-            collapseTimeline(sliderData);
-        }
-    }
+    div.onclick = function() { toggleTimelineVisibility(sliderData); }
 }
 
 /*
  * Part 2 of this file: timeline functionality
  */
-function updateTimeline(elem, value) {
+function updateTimeline(sliderData, value) {
     /**
      * Receives a notification from the slider that the slider changed
      */
-    const sliderData = sliders[elem.id];
-
     setClassForElements(sliderData.timelineDivsPerTick, 'timeline-column', value);
 
     // First, scroll immediately into view
@@ -390,7 +429,63 @@ function createFakeData(numTicks) {
     return allData;
 }
 
-function createSliderAndTimeline(config) {
+function animateFrontToBack(sliderData) {
+    sliderData.isAnimationInProgress = true;
+    
+    let doCollapseTimelineWhenDone = false;
+    if (sliderData.showTimelineWhileAnimating && !sliderData.isTimelineVisible) {
+        doCollapseTimelineWhenDone = true;
+        expandTimeline(sliderData);
+    }
+
+    scheduleNextAnimationStep(sliderData, 0, doCollapseTimelineWhenDone);
+}
+
+function animationStepRequested(sliderData, index, doCollapseTimelineWhenDone, currentTimestamp) {
+    setSliderValue(sliderData, index);
+
+    if (index < sliderData.ticks.length) {
+        scheduleNextAnimationStep(sliderData, index+1, doCollapseTimelineWhenDone, currentTimestamp);
+    } else {
+        sliderData.isAnimationInProgress = false;
+
+        if (doCollapseTimelineWhenDone) {
+            collapseTimeline(sliderData);
+        }
+    }
+}
+
+function scheduleNextAnimationStep(sliderData, index, doCollapseTimelineWhenDone, startTimestamp) {
+    window.requestAnimationFrame(function(currentTimestamp) {
+        if (startTimestamp === undefined)
+            startTimestamp = currentTimestamp;
+        const elapsed = currentTimestamp - startTimestamp;
+
+        if (!sliderData.isAnimationInProgress) {
+            // Canceled - don't collapse if user grabbed control
+            return;
+        }
+
+        const timeBetweenSteps = Math.min(1000 / sliderData.ticks.length, 100);
+        if (elapsed < timeBetweenSteps) { // Take 1s total, but at least 100ms
+            triggerNextAnimation(sliderData, index, doCollapseTimelineWhenDone, startTimestamp);
+            return;
+        }
+
+      animationStepRequested(sliderData, index, doCollapseTimelineWhenDone, currentTimestamp);
+    })
+}
+
+function sliderDataFromWrapperDivId(wrapperDivId) {
+    const sliderId = convertWrapperDivIdToSliderDivId(wrapperDivId);
+    return sliders[sliderId];
+}
+
+/**
+ * Public methods below
+ */
+
+function trs_createSliderAndTimeline(config) {
     /**
      * Creates the slider and the timeline
      * @param options User-controlled options, see the README
@@ -412,6 +507,9 @@ function createSliderAndTimeline(config) {
         'tickLabelPrefix': config.tickLabelPrefix,
         'sliderValueChanged': config.sliderValueChanged,
         'timelineData': config.timelineData,
+        'showTimelineWhileAnimating': config.showTimelineWhileAnimating,
+        'isAnimationInProgress': false,
+        'isTimelineVisible': false, // false until it's created
 
         /* To be filled out by createSlider */
         'ticks': null,
@@ -421,7 +519,11 @@ function createSliderAndTimeline(config) {
         'currentIndex': null,
 
         /* To be filled out by createExpandCollapseButton */
-        'expandCollapseDiv': null
+        'expandCollapseDiv': null,
+
+        /* To be filled out when contracting timeline */
+        'timelineDivOriginalPadding': null,
+        'timelineDivOriginalBorder': null,
     };
 
     // Create slider
@@ -439,17 +541,38 @@ function createSliderAndTimeline(config) {
     // Store data
     sliders[sliderData.sliderDiv.id] = sliderData;
 
+    // Move slider to end
+    setSliderValue(sliderData, config.numTicks-1);
+
+    // Toggle visibility if requested
     if (config.hideTimelineInitially) {
         collapseTimeline(sliderData);
     } else {
         expandTimeline(sliderData);
     }
 
-    // Move slider to end
-    setSliderValue(sliderData.sliderDiv,config.numTicks-1);
+    if (config.animateOnLoad) {
+        setSliderValue(sliderData, 0);
+        animateFrontToBack(sliderData);
+    }
+}
+
+function trs_animate(wrapperDivId) {
+    animateFrontToBack(sliderDataFromWrapperDivId(wrapperDivId));
+}
+
+function trs_moveSliderTo(wrapperDivId, value) {
+    setSliderValue(sliderDataFromWrapperDivId(wrapperDivId), value);
+}
+
+function trs_toggleTimelineVisibility(wrapperDivId) {
+    toggleTimelineVisibility(sliderDataFromWrapperDivId(wrapperDivId));
 }
 
 // In case of node.js
 if (typeof exports !== typeof undefined) {
-  exports.createSliderAndTimeline = createSliderAndTimeline
+    exports.createSliderAndTimeline = trs_createSliderAndTimeline
+    exports.moveSliderTo = trs_moveSliderTo
+    exports.animate = trs_animate
+    exports.toggleTimelineVisibility = trs_toggleTimelineVisibility
 }

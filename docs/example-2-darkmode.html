@@ -5,7 +5,7 @@
 
     <style>
         #wrapper-2 {
-            font-family: "Roboto Light";
+            font-family: sans-serif, "Roboto Light";
             color: whitesmoke;
         }
         #wrapper-2 .timeline-info {
@@ -26,13 +26,14 @@
         function sliderValueChanged(value) {
             document.getElementById('callback-container').innerHTML = "Example label for Epoch #" + (value+1);
         }
-        createSliderAndTimeline({
+        trs_createSliderAndTimeline({
             wrapperDivId: 'wrapper-2',
             numTicks: 5,
             tickText: '⋆',
             color: ['#009ee3', '#00a3c9', '#00a6aa', '#00a989', '#2eac66'],
             sliderValueChanged: sliderValueChanged,
-            tickLabelPrefix: "Epoch "
+            tickLabelPrefix: "Epoch ",
+            animateOnLoad: true
         });
     </script>
 </div>

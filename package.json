@@ -1,6 +1,6 @@
 {
   "name": "@artoonie/timeline-range-slider",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A customizable range slider with a built-in timeline",
   "main": "timeline-range-slider/slider.js",
   "directories": {
@@ -25,6 +25,7 @@
   },
   "homepage": "https://artoonie.github.io/timeline-range-slider/",
   "devDependencies": {
+    "eslint": "^7.18.0",
     "jest": "^26.6.3"
   }
 }

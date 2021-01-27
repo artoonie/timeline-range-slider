@@ -4,7 +4,7 @@
 
     <style>
         #wrapper-3 {
-            font-family: "Roboto Light";
+            font-family: sans-serif, "Roboto Light";
             color: whitesmoke;
         }
         #wrapper-3 .timeline-info {
@@ -29,7 +29,7 @@
         function sliderValueChanged(value) {
             document.getElementById('callback-container').innerHTML = "Example label for Epoch #" + (value+1);
         }
-        createSliderAndTimeline({
+        trs_createSliderAndTimeline({
             wrapperDivId: 'wrapper-3',
             numTicks: 40,
             width: 300,
