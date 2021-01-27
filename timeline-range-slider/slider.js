@@ -468,7 +468,7 @@ function scheduleNextAnimationStep(sliderData, index, doCollapseTimelineWhenDone
 
         const timeBetweenSteps = Math.min(1000 / sliderData.ticks.length, 100);
         if (elapsed < timeBetweenSteps) { // Take 1s total, but at least 100ms
-            triggerNextAnimation(sliderData, index, doCollapseTimelineWhenDone, startTimestamp);
+            scheduleNextAnimationStep(sliderData, index, doCollapseTimelineWhenDone, startTimestamp);
             return;
         }
 
