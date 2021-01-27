@@ -43,15 +43,57 @@ Pick what works for your setup:
 2. Download assets from [github package](https://github.com/artoonie/timeline-range-slider/packages/592040)
 3. Just download the files in the `timeline-range-slider` directory. Go on. I won't judge you.
 
-### Configuration options
-Create a slider by calling:
+### Usage
+#### API: Vanilla Javascript
+All functions are under the trs\_ namespace to avoid conflicts:
+
+Include the files in your HTML and create a wrapper div:
 ```html
 <link rel="stylesheet" href="slider.css">
 <script type="text/javascript" src="slider.js"></script>
-
-createSliderAndTimeline(config);
+<div id="slide"></div>
 ```
 
+Create a slider by calling:
+```javascript
+const config = {wrapperDivId: 'slide', numTicks: 10}
+trs_createSliderAndTimeline(config);
+```
+additional config options are described below.
+
+You can a slider value manually by calling:
+```javascript
+trs_setSliderValue('slide', 5);
+```
+
+You can animate a slider to have it move front-to-back with
+```javascript
+trs_animate('slide');
+```
+
+Hide the timeline with:
+```javascript
+trs_toggleTimelineVisibility('slide');
+```
+
+#### API: Node module
+HTML:
+```html
+const slider = require('./timeline-range-slider/slider.js');
+require('./timeline-range-slider/slider.css');
+
+<div id="slide"></div>
+```
+
+Javascript:
+```html
+slide.createSliderAndTimeline(config);
+slide.setSliderValue('slide', 5);
+slide.animate('slide');
+slide.toggleTimelineVisibility('slide');
+```
+
+### Configuration options
 The `config` dictionary has the following options:
 
 | key | default | description |
@@ -64,6 +106,8 @@ The `config` dictionary has the following options:
 | `tickLabelPrefix` | `'Round '` | What does each tick represent? Placed in the header row of the timeline. |
 | `color` | `'orangered'` | The color of past tick marks. Can be a single string or a list. If it's a list, must be of size numTicks. |
 | `sliderValueChanged` | `null` | Callback to be notified when the slider changes. |
+| `animateOnLoad` | false | Should the slider animate all steps on load? |
+| `showTimelineWhileAnimating` | true | Should the timeline expand during animation? |
 | `timelineData` | random data | The timeline data. See below for how to structure this. |
 
 #### Timeline data structure
