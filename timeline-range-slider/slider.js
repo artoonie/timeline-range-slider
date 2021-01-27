@@ -84,7 +84,10 @@ function setSliderValue(elem, value) {
 
     // Optional callback
     if (sliderData.sliderValueChanged) {
-        sliderData.sliderValueChanged(value);
+      // Request animation frame so repeated sliding triggers smooth callbacks
+      window.requestAnimationFrame(
+        function() { sliderData.sliderValueChanged(value); }
+      );
     }
 }
 
@@ -144,14 +147,14 @@ function onSliderDragEnd(event) {
 }
 
 function validateConfig(config) {
-    // Validate tickData
-    if (config.tickData.length !== config.numTicks) {
-        throw new Error("tickData length must be equal to numTicks")
+    // Validate timelineData
+    if (config.timelineData.length !== config.numTicks) {
+        throw new Error("timelineData length must be equal to numTicks")
     }
-    config.tickData.map(function(oneTickData){
-        oneTickData.map(function(tickDatum) {
-            if (tickDatum.summaryText === undefined) {
-                throw new Error("Each tickData must have a summary")
+    config.timelineData.map(function(timelineDataOneTick){
+        timelineDataOneTick.map(function(timelineDatum) {
+            if (timelineDatum.summaryText === undefined) {
+                throw new Error("Each timelineData must have a summary")
             }
         })
     })
@@ -194,8 +197,8 @@ function setConfigDefaults(config) {
     if (config.color === undefined) {
         config.color = 'orangered';
     }
-    if (config.tickData === undefined) {
-        config.tickData = createFakeData(config.numTicks);
+    if (config.timelineData === undefined) {
+        config.timelineData = createFakeData(config.numTicks);
     }
 
     validateConfig(config);
@@ -305,14 +308,9 @@ function hideHelpTooltip() {
     document.getElementById('timeline-info-tooltip').remove();
 }
 
-function createTimeline(sliderData, listOfTickData) {
+function createTimeline(sliderData) {
     /**
-     * List of tick data is an array of length #ticks.
-     * Each element is a list of objects describing the timeline of events that happened
-     * on that tick. Each of those elements are object with fields:
-     *  elem.summaryText
-     *  elem.className
-     *  elem.moreInfoText
+     * Generates the timeline based on sliderData.timelineData
      */
     let timelineDiv = document.createElement('div');
     timelineDiv.className = 'timeline';
@@ -321,7 +319,7 @@ function createTimeline(sliderData, listOfTickData) {
     let floatWrap = document.createElement('div');
     floatWrap.style.float = "left";
 
-    listOfTickData.map(function(tickData, i) {
+    sliderData.timelineData.map(function(timelineDataOneTick, i) {
         let tickDiv = document.createElement('div');
         tickDiv.setAttribute('class', 'timeline-info-one-step');
 
@@ -330,22 +328,22 @@ function createTimeline(sliderData, listOfTickData) {
         headerDiv.setAttribute('class', 'timeline-header');
         tickDiv.appendChild(headerDiv);
 
-        tickData.map(function(tickDatum) {
+        timelineDataOneTick.map(function(timelineDatum) {
             let div = document.createElement('div');
-            div.innerHTML = tickDatum.summaryText;
+            div.innerHTML = timelineDatum.summaryText;
             div.classList.add('timeline-info');
 
             // Optional class name
-            if (tickDatum.className) {
-                div.classList.add(tickDatum.className);
+            if (timelineDatum.className) {
+                div.classList.add(timelineDatum.className);
             }
 
             // Optional tooltip
-            if (tickDatum.moreInfoText) {
+            if (timelineDatum.moreInfoText) {
                 let moreInfoLink = document.createElement('a');
                 moreInfoLink.innerHTML = '?';
                 moreInfoLink.setAttribute('class', 'question-mark');
-                moreInfoLink.setAttribute('data-label', tickDatum.moreInfoText);
+                moreInfoLink.setAttribute('data-label', timelineDatum.moreInfoText);
                 moreInfoLink.onmouseover = showHelpTooltip;
                 moreInfoLink.onmouseout = hideHelpTooltip;
 
@@ -370,11 +368,11 @@ function createTimeline(sliderData, listOfTickData) {
 function createFakeData(numTicks) {
     const datumOptions = [{
         summaryText: "Something good",
-        className: "timeline-info-elected",
+        className: "timeline-info-good",
         moreInfoText: "Like a birth or the end of wars"
     }, {
         summaryText: "Something bad",
-        className: "timeline-info-eliminated",
+        className: "timeline-info-bad",
         moreInfoText: "As if millions of voices suddenly cried out in terror and were suddenly silenced"
     }, {
         summaryText: "Chance event!"
@@ -382,12 +380,12 @@ function createFakeData(numTicks) {
     ]
     let allData = [];
     for(let i = 0; i < numTicks; ++i) {
-        let tickData = [];
-        tickData.push(datumOptions[Math.floor(Math.random()*3)]);
-        tickData.push(datumOptions[Math.floor(Math.random()*3)]);
+        let timelineData = [];
+        timelineData.push(datumOptions[Math.floor(Math.random()*3)]);
+        timelineData.push(datumOptions[Math.floor(Math.random()*3)]);
         if (i % 2 === 0)
-            tickData.push(datumOptions[Math.floor(Math.random()*3)]);
-        allData.push(tickData);
+            timelineData.push(datumOptions[Math.floor(Math.random()*3)]);
+        allData.push(timelineData);
     }
     return allData;
 }
@@ -413,6 +411,7 @@ function createSliderAndTimeline(config) {
         'color': config.color,
         'tickLabelPrefix': config.tickLabelPrefix,
         'sliderValueChanged': config.sliderValueChanged,
+        'timelineData': config.timelineData,
 
         /* To be filled out by createSlider */
         'ticks': null,
@@ -420,7 +419,6 @@ function createSliderAndTimeline(config) {
 
         /* To be filled out by createTimeline */
         'currentIndex': null,
-        'timelineData': null,
 
         /* To be filled out by createExpandCollapseButton */
         'expandCollapseDiv': null
@@ -431,7 +429,7 @@ function createSliderAndTimeline(config) {
     outerDiv.appendChild(sliderData.sliderDiv);
 
     // Create timeline
-    createTimeline(sliderData, createFakeData(config.numTicks), config.width);
+    createTimeline(sliderData);
     outerDiv.appendChild(sliderData.timelineDiv);
 
     // Create "Expand Details" button
@@ -452,4 +450,6 @@ function createSliderAndTimeline(config) {
 }
 
 // In case of node.js
-exports.createSliderAndTimeline = createSliderAndTimeline
+if (typeof exports !== typeof undefined) {
+  exports.createSliderAndTimeline = createSliderAndTimeline
+}
