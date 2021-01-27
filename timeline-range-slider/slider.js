@@ -452,8 +452,10 @@ function triggerNextAnimation(sliderData, index, doCollapseTimelineWhenDone, sta
             return;
         }
 
-        if (elapsed < 33) { // Only animate every 66ms, in case of high screen refresh rates
+        const timeBetweenSteps = Math.min(1000 / sliderData.ticks.length, 100);
+        if (elapsed < timeBetweenSteps) { // Take 1s total, but at least 100ms
             triggerNextAnimation(sliderData, index, doCollapseTimelineWhenDone, startTimestamp);
+            return;
         }
 
         setSliderValue(sliderData, index);
@@ -472,8 +474,7 @@ function triggerNextAnimation(sliderData, index, doCollapseTimelineWhenDone, sta
 
 function sliderDataFromWrapperDivId(wrapperDivId) {
     const sliderId = convertWrapperDivIdToSliderDivId(wrapperDivId);
-    const sliderData = sliders[sliderId];
-    return sliderData;
+    return sliders[sliderId];
 }
 
 /**
@@ -547,6 +548,7 @@ function trs_createSliderAndTimeline(config) {
     }
 
     if (config.animateOnLoad) {
+        setSliderValue(sliderData, 0);
         animateFrontToBack(sliderData);
     }
 }
