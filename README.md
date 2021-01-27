@@ -1,7 +1,11 @@
 # A lightweight range slider with expandable timeline
+
 See this project at [artoonie.github.io/timeline-range-slider](https://artoonie.github.io/timeline-range-slider)
+
 The project page has dynamic sliders you can interact with.
+
 ![Node.js CI](https://github.com/artoonie/timeline-range-slider/workflows/Node.js%20CI/badge.svg)
+
 
 # A lightweight, dependency-free range slider
 

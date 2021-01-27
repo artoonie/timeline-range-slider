@@ -1,13 +1,13 @@
 ---
 layout: default
 ---
-{% capture deps %}{% include_relative deps.html %}{% endcapture %}
+{% capture deps %}{% include_relative docs/deps.html %}{% endcapture %}
 {{ deps }}
 
 # A lightweight, dependency-free range slider
 
 The default configuration gives you a slider with a collapsible timeline:
-{% capture ex0 %}{% include_relative example-0-teaser.html %}{% endcapture %}
+{% capture ex0 %}{% include_relative docs/example-0-teaser.html %}{% endcapture %}
 {{ ex0 }}
 
 ## Features & Benefits
@@ -25,15 +25,15 @@ Benefits:
 
 ## Examples
 ### #1: Default
-{% capture ex1 %}{% include_relative example-1-default.html %}{% endcapture %}
+{% capture ex1 %}{% include_relative docs/example-1-default.html %}{% endcapture %}
 {{ ex1 }}
 
 ### #2: Dark theme
-{% capture ex2 %}{% include_relative example-2-darkmode.html %}{% endcapture %}
+{% capture ex2 %}{% include_relative docs/example-2-darkmode.html %}{% endcapture %}
 {{ ex2 }}
 
 ### #3: Small and continuous
-{% capture ex3 %}{% include_relative example-3-small.html %}{% endcapture %}
+{% capture ex3 %}{% include_relative docs/example-3-small.html %}{% endcapture %}
 {{ ex3 }}
 
 ## Usage
