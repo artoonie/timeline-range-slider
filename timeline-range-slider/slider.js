@@ -438,10 +438,24 @@ function animateFrontToBack(sliderData) {
         expandTimeline(sliderData);
     }
 
-    triggerNextAnimation(sliderData, 0, doCollapseTimelineWhenDone);
+    scheduleNextAnimationStep(sliderData, 0, doCollapseTimelineWhenDone);
 }
 
-function triggerNextAnimation(sliderData, index, doCollapseTimelineWhenDone, startTimestamp) {
+function animationStepRequested(sliderData, index, doCollapseTimelineWhenDone, currentTimestamp) {
+    setSliderValue(sliderData, index);
+
+    if (index < sliderData.ticks.length) {
+        scheduleNextAnimationStep(sliderData, index+1, doCollapseTimelineWhenDone, currentTimestamp);
+    } else {
+        sliderData.isAnimationInProgress = false;
+
+        if (doCollapseTimelineWhenDone) {
+            collapseTimeline(sliderData);
+        }
+    }
+}
+
+function scheduleNextAnimationStep(sliderData, index, doCollapseTimelineWhenDone, startTimestamp) {
     window.requestAnimationFrame(function(currentTimestamp) {
         if (startTimestamp === undefined)
             startTimestamp = currentTimestamp;
@@ -458,17 +472,7 @@ function triggerNextAnimation(sliderData, index, doCollapseTimelineWhenDone, sta
             return;
         }
 
-        setSliderValue(sliderData, index);
-
-        if (index < sliderData.ticks.length) {
-            triggerNextAnimation(sliderData, index+1, doCollapseTimelineWhenDone, currentTimestamp);
-        } else {
-            sliderData.isAnimationInProgress = false;
-
-            if (doCollapseTimelineWhenDone) {
-                collapseTimeline(sliderData);
-            }
-        }
+      animationStepRequested(sliderData, index, doCollapseTimelineWhenDone, currentTimestamp);
     })
 }
 

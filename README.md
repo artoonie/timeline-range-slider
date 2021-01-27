@@ -45,7 +45,7 @@ Pick what works for your setup:
 
 ### Usage
 #### API: Vanilla Javascript
-All functions are under the trs\_ namespace to avoid conflicts:
+If you're not using node.js, functions begin with trs\_ namespace to avoid conflicts:
 
 Include the files in your HTML and create a wrapper div:
 ```html
@@ -76,7 +76,7 @@ Hide the timeline with:
 trs_toggleTimelineVisibility('slide');
 ```
 
-#### API: Node module
+#### API: Using node.js
 HTML:
 ```html
 const slider = require('./timeline-range-slider/slider.js');
@@ -87,10 +87,10 @@ require('./timeline-range-slider/slider.css');
 
 Javascript:
 ```html
-slide.createSliderAndTimeline(config);
-slide.setSliderValue('slide', 5);
-slide.animate('slide');
-slide.toggleTimelineVisibility('slide');
+slider.createSliderAndTimeline(config);
+slider.setSliderValue('slide', 5);
+slider.animate('slide');
+slider.toggleTimelineVisibility('slide');
 ```
 
 ### Configuration options
@@ -115,7 +115,7 @@ The `timelineData` contains the events that occurred at each "tick" in the timel
 It is a list of lists. Each of the `numTicks` elements contains a list of events.
 A single event is structured as follows:
 ```javascript
-{
+const oneTimelineItem = {
   summaryText: "Short summary",
   className: "custom-class-for-summary-label", /* optional */
   moreInfoText: "Description to show when hovering" /* optional */
@@ -126,22 +126,23 @@ Each "tick" can have multiple events (or zero events).
 
 A complete `timelineData` structure might look like:
 ```javascript
-[
+const timelineData = [
     [
-        {summaryText: 'Event 1, tick 1'},
-        {summaryText: 'Event 2, tick 1'}
+        {summaryText: "Event 3, tick 1"},
+        {summaryText: "Event 2, tick 1"}
     ],
     [
-        {summaryText: 'Event 1, tick 2',
-         className: 'some-class'}
+        {summaryText: "Event 1, tick 2",
+         className: "some-class"}
     ],
     [ /* No events in tick 3 */
     ],
     [
-        {summaryText: 'Event 1, tick 4'},
-        {summaryText: 'Event 2, tick 4'},
-        {summaryText: 'Event 3, tick 4',
-         moreInfoText: 'a long description'}
+        {summaryText: "Event 1, tick 4"},
+        {summaryText: "Event 2, tick 4"},
+        {summaryText: "Event 3, tick 4",
+         moreInfoText: "a long description"}
     ]
 ]
+
 ```
