@@ -1,0 +1,39 @@
+<div>
+    <div id="wrapper-4">
+    </div>
+
+    <style>
+        #wrapper-4 .slider {
+            background-image: linear-gradient(5deg, #e9dcef, #fff9dc);
+        }
+        #wrapper-4 .expand-collapse-button {
+            display: none;
+        }
+        #wrapper-4 .slider-item {
+            font-size: 0.5em;
+            line-height: 1rem;
+        }
+        #wrapper-4 .slider-active {
+            font-weight: bold;
+            font-size: 1.5em;
+            background-image: url(timeline-range-slider/drag-affordance.png);
+            background-repeat-x: repeat;
+            background-position-y: bottom;
+            background-position-x: left;
+            background-size: 6px;
+            padding-bottom: 10px;
+        }
+    </style>
+    <script type="text/javascript">
+        ticks = Array(7).fill().map((_, i) => "Round " + (i+1));
+        ticks = Array(7).fill().map((_, i) => "Round " + (i+1));
+        trs_createSliderAndTimeline({
+            wrapperDivId: 'wrapper-4',
+            numTicks: 7,
+            tickText: ticks,
+            color: ['#009ee3', '#00a3c9', '#00a6aa', '#00a989', '#2eac66', '#009ee3', '#00a3c9'],
+            hideActiveTickText: false
+        });
+    </script>
+</div>
+

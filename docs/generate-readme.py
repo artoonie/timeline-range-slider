@@ -39,7 +39,8 @@ def create_derived_files(input_filename, output_static_filename, output_dynamic_
         '{{ ex0 }}\n':  ('ex0', 'docs/example-0-teaser.html', 'docs/images/ex0.png'),
         '{{ ex1 }}\n':  ('ex1', 'docs/example-1-default.html', 'docs/images/ex0.png'),
         '{{ ex2 }}\n':  ('ex2', 'docs/example-2-darkmode.html', 'docs/images/ex2.png'),
-        '{{ ex3 }}\n':  ('ex3', 'docs/example-3-small.html', 'docs/images/ex3.png')
+        '{{ ex3 }}\n':  ('ex3', 'docs/example-3-small.html', 'docs/images/ex3.png'),
+        '{{ ex4 }}\n':  ('ex4', 'docs/example-4-custom-tick-text.html', 'docs/images/ex4.png')
     }
 
     # Small enough to just read it all into memory,
@@ -60,6 +61,7 @@ def create_derived_files(input_filename, output_static_filename, output_dynamic_
         if static_content is not None:
             # Replace the static content
             static_lines.append(f'![{key}]({static_content})\n')
+            static_lines.append(f'[demo](https://artoonie.github.io/timeline-range-slider)')
 
         # Include the actual content + the dynamic content
         include_line = '{% capture ' + key + ' %}'

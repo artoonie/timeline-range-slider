@@ -28,6 +28,9 @@ Benefits:
 ### #3: Small and continuous
 {{ ex3 }}
 
+### #4: Variable tick text
+{{ ex4 }}
+
 ## Usage
 
 ### Installation
@@ -95,8 +98,9 @@ The `config` dictionary has the following options:
 | `numTicks`* | _required_ | The number of elements in the slider |
 | `width` | `600` | The maximum width of the slider. If the page is narrower than this, the slider will responsively scale. |
 | `hideTimelineInitially` | `true` | Whether or not the timeline is initially expanded or collapsed |
-| `tickText` | `'•'` | The text that marks a tick in the slider |
 | `tickLabelPrefix` | `'Round '` | What does each tick represent? Placed in the header row of the timeline. |
+| `hideActiveTickText` | `false` | Should we hide `tickText` on the active tick? By default, we hide the text and show a slider via CSS. Only change this if you override the CSS for the active tick. |
+| `tickText` | `'•'` | The text that marks a tick in the slider. Can be a single string or a list. If it's a list, must be the size of numTicks. |
 | `color` | `'orangered'` | The color of past tick marks. Can be a single string or a list. If it's a list, must be of size numTicks. |
 | `sliderValueChanged` | `null` | Callback to be notified when the slider changes. |
 | `animateOnLoad` | false | Should the slider animate all steps on load? |
