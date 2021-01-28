@@ -297,6 +297,20 @@ function createArrowIcon(innerHTML, onclick) {
     return btn;
 }
 
+function createLeftArrow(sliderData) {
+    let leftArrow = createArrowIcon('&#8249;', function() { 
+      setSliderValue(sliderData, sliderData.currentIndex-1); });
+    leftArrow.style.marginRight = "5px";
+    return leftArrow;
+}
+
+function createRightArrow(sliderData) {
+    let rightArrow = createArrowIcon('&#8250;', function() { 
+      setSliderValue(sliderData, sliderData.currentIndex+1); });
+    rightArrow.style.marginLeft = "5px";
+    return rightArrow;
+}
+
 function createSlider(sliderData, numTicks) {
     /**
      * Creates the slider element.
@@ -319,26 +333,8 @@ function createSlider(sliderData, numTicks) {
     sliderDiv.addEventListener("touchstart", onSliderDragStart);
     sliderDiv.addEventListener("mousedown", onSliderDragStart);
 
-    // Add left/right arrows
-    let outerDiv = document.createElement('div');
-    outerDiv.style.display = "flex";
-    outerDiv.style.alignItems = "center";
-
-    let leftArrow = createArrowIcon('&#8249;', function() { 
-      setSliderValue(sliderData, sliderData.currentIndex-1); });
-    leftArrow.style.marginRight = "5px";
-    outerDiv.appendChild(leftArrow)
-
-    outerDiv.appendChild(sliderDiv)
-
-    let rightArrow = createArrowIcon('&#8250;', function() { 
-      setSliderValue(sliderData, sliderData.currentIndex+1); });
-    rightArrow.style.marginLeft = "5px";
-    outerDiv.appendChild(rightArrow)
-
     sliderData.ticks = ticks;
     sliderData.sliderDiv = sliderDiv;
-    sliderData.sliderAndArrowsDiv = outerDiv;
 }
 
 function toggleTimelineVisibility(sliderData) {
@@ -439,7 +435,7 @@ function createTimeline(sliderData) {
 
             // Optional tooltip
             if (timelineDatum.moreInfoText) {
-                let moreInfoLink = document.createElement('a');
+                let moreInfoLink = document.createElement('button');
                 moreInfoLink.innerHTML = '?';
                 moreInfoLink.setAttribute('class', 'question-mark');
                 moreInfoLink.setAttribute('data-label', timelineDatum.moreInfoText);
@@ -557,8 +553,7 @@ function trs_createSliderAndTimeline(config) {
 
     // Set style of outer div
     let outerDiv = document.getElementById(config.wrapperDivId);
-    outerDiv.style.maxWidth = config.width + "px";
-    outerDiv.style.width = "100%";
+    outerDiv.classList.add('trs-wrapper');
 
     // Set up data
     let sliderData = {
@@ -577,7 +572,6 @@ function trs_createSliderAndTimeline(config) {
         /* To be filled out by createSlider */
         'ticks': null,
         'sliderDiv': null,
-        'sliderAndArrowsDiv': null,
 
         /* To be filled out by createTimeline */
         'currentIndex': null,
@@ -592,17 +586,30 @@ function trs_createSliderAndTimeline(config) {
         'timelineDivExpandedBorder': null,
     };
 
+    // Create center div
+    let centerDiv = document.createElement('div');
+    centerDiv.style.flex = "1 1 auto"
+    centerDiv.style.maxWidth = config.width + "px";
+    centerDiv.style.width = "100%";
+
     // Create slider
     createSlider(sliderData, config.numTicks);
-    outerDiv.appendChild(sliderData.sliderAndArrowsDiv);
+    centerDiv.appendChild(sliderData.sliderDiv);
 
     // Create timeline
     createTimeline(sliderData);
-    outerDiv.appendChild(sliderData.timelineWrapper);
+    centerDiv.appendChild(sliderData.timelineWrapper);
 
     // Create "Expand Details" button
     createExpandCollapseButton(sliderData);
-    outerDiv.appendChild(sliderData.expandCollapseDiv);
+    centerDiv.appendChild(sliderData.expandCollapseDiv);
+
+    // Create left/right arrows and place all in outer div
+    let leftArrow = createLeftArrow(sliderData);
+    let rightArrow = createRightArrow(sliderData);
+    outerDiv.appendChild(leftArrow)
+    outerDiv.appendChild(centerDiv)
+    outerDiv.appendChild(rightArrow)
 
     // Store data
     sliders[sliderData.sliderDiv.id] = sliderData;
