@@ -60,8 +60,8 @@ def create_derived_files(input_filename, output_static_filename, output_dynamic_
         (key, dynamic_content, static_content) = magic_keys[line]
         if static_content is not None:
             # Replace the static content
+            static_lines.append(f'\n[\[interactive demo\]](https://artoonie.github.io/timeline-range-slider)\n')
             static_lines.append(f'![{key}]({static_content})\n')
-            static_lines.append(f'[demo](https://artoonie.github.io/timeline-range-slider)')
 
         # Include the actual content + the dynamic content
         include_line = '{% capture ' + key + ' %}'
