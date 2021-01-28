@@ -19,6 +19,7 @@ body {
     padding: 5px 0 5px 0;
 
     display: flex;
+    align-items: center;
     justify-content: space-evenly;
 
     /* Don't allow dragging */
@@ -48,21 +49,40 @@ body {
     pointer-events: none;
     overflow: hidden;
     text-overflow: clip;
-    vertical-align: middle;
-    line-height: 1rem;
 }
 
-.slider-past {
+.slider-item-past {
 }
-.slider-future {
+.slider-item-future {
     color: #545454 !important;
 }
-.slider-active {
+.slider-item-active {
     background-image: url('slider.png');
     background-repeat: no-repeat;
     background-position: center;
     min-width: 28px !important; /* Override the default width */
     min-height: 16px;
+}
+.slider-item-hidden-slider-past {
+    font-size: 0.7em;
+    line-height: 1rem;
+}
+.slider-item-hidden-slider-future  {
+    font-size: 0.7em;
+    line-height: 1rem;
+    color: #545454 !important;
+}
+.slider-item-hidden-slider-active {
+    font-weight: bold;
+    font-size: 1.2em;
+    background-image: url(drag-affordance.png);
+
+    background-repeat-y: no-repeat;
+    background-repeat-x: repeat;
+    background-position-y: bottom;
+    background-position-x: left;
+    background-size: 6px;
+    padding-bottom: 2px;
 }
 
 .prev-next-button {
@@ -73,7 +93,7 @@ body {
     min-width: 20px;
     min-height: 20px;
     line-height: 1em;
-    margin-top: 5px;
+    margin-top: 10px;
     text-align: center;
     vertical-align: middle;
     border: none;

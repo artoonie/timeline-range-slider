@@ -80,14 +80,16 @@ function setSliderValue(sliderData, value) {
       return;
     }
 
-    setClassForElements(sliderData.ticks, 'slider', value);
-
     // Edit text for each tick
     if (sliderData.hideActiveTickText) {
       if (sliderData.currentIndex != null) {
           sliderData.ticks[sliderData.currentIndex].innerHTML = getTickTextFor(sliderData, sliderData.currentIndex);
       }
       sliderData.ticks[value].innerHTML = "";
+
+      setClassForElements(sliderData.ticks, 'slider-item', value);
+    } else {
+      setClassForElements(sliderData.ticks, 'slider-item-hidden-slider', value);
     }
 
     sliderData.currentIndex = value;
