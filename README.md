@@ -10,8 +10,10 @@ The project page has dynamic sliders you can interact with.
 # A lightweight, dependency-free range slider
 
 The default configuration gives you a slider with a collapsible timeline:
+
+[\[interactive demo\]](https://artoonie.github.io/timeline-range-slider)
 ![ex0](docs/images/ex0.png)
-[demo](https://artoonie.github.io/timeline-range-slider)
+
 ## Features & Benefits
 Features:
 * A mobile-friendly range slider,
@@ -27,17 +29,25 @@ Benefits:
 
 ## Examples
 ### #1: Default
+
+[\[interactive demo\]](https://artoonie.github.io/timeline-range-slider)
 ![ex1](docs/images/ex0.png)
-[demo](https://artoonie.github.io/timeline-range-slider)
+
 ### #2: Dark theme
+
+[\[interactive demo\]](https://artoonie.github.io/timeline-range-slider)
 ![ex2](docs/images/ex2.png)
-[demo](https://artoonie.github.io/timeline-range-slider)
+
 ### #3: Small and continuous
+
+[\[interactive demo\]](https://artoonie.github.io/timeline-range-slider)
 ![ex3](docs/images/ex3.png)
-[demo](https://artoonie.github.io/timeline-range-slider)
+
 ### #4: Variable tick text
+
+[\[interactive demo\]](https://artoonie.github.io/timeline-range-slider)
 ![ex4](docs/images/ex4.png)
-[demo](https://artoonie.github.io/timeline-range-slider)
+
 ## Usage
 
 ### Installation
