@@ -61,6 +61,14 @@ function setClassForElements(elements, classBaseName, tickValue) {
     elements[tickValue].classList.remove(classNameFuture);
 }
 
+function getColorFor(sliderData, index) {
+    return Array.isArray(sliderData.color) ? sliderData.color[index] : sliderData.color;
+}
+
+function getTickTextFor(sliderData, index) {
+    return Array.isArray(sliderData.tickText) ? sliderData.tickText[index] : sliderData.tickText;
+}
+
 function setSliderValue(sliderData, value) {
     /**
      * Sets the value of the slider, updating classes and notifying the timeline
@@ -68,13 +76,19 @@ function setSliderValue(sliderData, value) {
     value = Math.min(value, sliderData.ticks.length-1);
     value = Math.max(value, 0);
 
+    if (sliderData.currentIndex == value) {
+      return;
+    }
+
     setClassForElements(sliderData.ticks, 'slider', value);
 
     // Edit text for each tick
-    if (sliderData.currentIndex != null) {
-        sliderData.ticks[sliderData.currentIndex].innerHTML = sliderData.tickText;
+    if (sliderData.hideActiveTickText) {
+      if (sliderData.currentIndex != null) {
+          sliderData.ticks[sliderData.currentIndex].innerHTML = getTickTextFor(sliderData, sliderData.currentIndex);
+      }
+      sliderData.ticks[value].innerHTML = "";
     }
-    sliderData.ticks[value].innerHTML = "";
 
     sliderData.currentIndex = value;
 
@@ -148,6 +162,18 @@ function onSliderDragEnd(event) {
     event.preventDefault();
 }
 
+function ensureConfigCorrectSizeIfAList(config, configOption) {
+  /**
+   * Ensures config[configOptions] is of length numTicks if an array
+   */
+    if(Array.isArray(config[configOption])) {
+        if (config[configOption].length !== config.numTicks) {
+            throw new Error('color ' + configOption +
+                            ' must be a string or a list of length numTicks')
+        }
+    }
+}
+
 function validateConfig(config) {
     // Validate timelineData
     if (config.timelineData.length !== config.numTicks) {
@@ -161,12 +187,9 @@ function validateConfig(config) {
         })
     })
 
-    // Validate color
-    if(Array.isArray(config.color)) {
-        if (config.color.length !== config.numTicks) {
-            throw new Error('color config must be a string or a list of length numTicks')
-        }
-    }
+    // Validate color and tickText
+    ensureConfigCorrectSizeIfAList(config, 'color');
+    ensureConfigCorrectSizeIfAList(config, 'tickText');
 }
 
 function setConfigDefaults(config) {
@@ -207,6 +230,9 @@ function setConfigDefaults(config) {
     }
     if (config.showTimelineWhileAnimating === undefined) {
         config.showTimelineWhileAnimating = true;
+    }
+    if (config.hideActiveTickText === undefined) {
+        config.hideActiveTickText = true;
     }
 
     validateConfig(config);
@@ -271,8 +297,9 @@ function createSlider(sliderData, numTicks) {
     let ticks = [];
     const maxWidth = sliderData.width / numTicks;
     for (let i = 0; i < numTicks; ++i) {
-        const tickColor = Array.isArray(sliderData.color) ? sliderData.color[i] : sliderData.color;
-        const tick = createTick(maxWidth, sliderData.tickText, tickColor);
+        const tickColor = getColorFor(sliderData, i);
+        const tickText = getTickTextFor(sliderData, i);
+        const tick = createTick(maxWidth, tickText, tickColor);
         const elem = sliderDiv.appendChild(tick);
         ticks.push(elem);
     }
@@ -508,6 +535,7 @@ function trs_createSliderAndTimeline(config) {
         'sliderValueChanged': config.sliderValueChanged,
         'timelineData': config.timelineData,
         'showTimelineWhileAnimating': config.showTimelineWhileAnimating,
+        'hideActiveTickText': config.hideActiveTickText,
         'isAnimationInProgress': false,
         'isTimelineVisible': false, // false until it's created
 

@@ -5,6 +5,8 @@ body {
     width: 100%;
 
     background-image: linear-gradient(10deg, #b1e0e6, #8ddae4);
+    box-shadow: 1px 5px 20px 0 #dedede;
+
     border-color: #333;
     border-style: solid;
     border-width: 1px 1px 0 1px;
@@ -21,6 +23,13 @@ body {
     -ms-user-select: none;
     user-select: none;
 }
+.slider:hover {
+    cursor: grab;
+}
+
+.slider:active {
+    cursor: grabbing;
+}
 
 .slider-when-timeline-visible {
     border-width: 1px;
@@ -33,6 +42,8 @@ body {
     pointer-events: none;
     overflow: hidden;
     text-overflow: clip;
+    vertical-align: middle;
+    line-height: 1rem;
 }
 
 .slider-past {
@@ -55,7 +66,7 @@ body {
     border-color: #333;
     border-style: solid;
     border-radius: 0 0 5px 5px;
-    background-image: linear-gradient(10deg, #b1e0e6, #8ddae4);
+    box-shadow: 1px 5px 20px 0 #dedede;
     padding-bottom: 5px;
 
     overflow-y: auto;
@@ -150,7 +161,7 @@ body {
     margin-left: auto;
     margin-right: auto;
 
-    background-image: linear-gradient(10deg, #b1e0e6, #8ddae4);
+    background-image: linear-gradient(10deg, #e7fafd, #d6ebee);
     border-width: 0 1px 1px 1px;
     border-style: solid;
     border-radius: 0 0 5px 5px;
