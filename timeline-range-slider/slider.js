@@ -245,14 +245,13 @@ function expandTimeline(sliderData) {
     sliderData.expandCollapseDiv.innerHTML = '[—] Collapse Details';
     sliderData.timelineDiv.style.maxHeight = "999px";
     sliderData.timelineDiv.style.opacity = 1;
-    sliderData.sliderDiv.classList.remove('slider-when-timeline-visible');
+    sliderData.sliderDiv.classList.remove('slider-when-timeline-hidden');
 
-    // Restore original padding + border
-    if (sliderData.timelineDivOriginalPadding != null) {
-      sliderData.timelineDiv.style.padding = sliderData.timelineDivOriginalPadding;
-      sliderData.timelineDiv.style.border = sliderData.timelineDivOriginalBorder;
+    // Restore expanded padding + border
+    if (sliderData.timelineDivExpandedPadding != null) {
+      sliderData.timelineDiv.style.padding = sliderData.timelineDivExpandedPadding;
+      sliderData.timelineDiv.style.border = sliderData.timelineDivExpandedBorder;
     }
-
     sliderData.isTimelineVisible = true;
 
     // Make sure the timeline is showing the right data
@@ -264,16 +263,16 @@ function collapseTimeline(sliderData) {
      * Collapses the timeline, updating classes, text, and borders
      */
 
-    // Store original padding + border to be restored during expansion
-    sliderData.timelineDivOriginalPadding = sliderData.timelineDiv.style.padding;
-    sliderData.timelineDivOriginalBorder = sliderData.timelineDiv.style.border;
+    // Store expanded padding + border
+    sliderData.timelineDivExpandedPadding = sliderData.timelineDiv.style.padding;
+    sliderData.timelineDivExpandedBorder = sliderData.timelineDiv.style.border;
 
     sliderData.expandCollapseDiv.innerHTML = '[+] Expand Details';
     sliderData.timelineDiv.style.maxHeight = 0;
     sliderData.timelineDiv.style.opacity = 0;
     sliderData.timelineDiv.style.padding = 0;
     sliderData.timelineDiv.style.border = 0;
-    sliderData.sliderDiv.classList.add('slider-when-timeline-visible');
+    sliderData.sliderDiv.classList.add('slider-when-timeline-hidden');
 
     sliderData.isTimelineVisible = false;
 }
@@ -283,6 +282,19 @@ function convertWrapperDivIdToSliderDivId(wrapperDivId) {
      * Creates a unique slider div ID given the wrapper div ID
      */
     return '_sliderDiv_' + wrapperDivId;
+}
+
+function createArrowIcon(innerHTML, onclick) {
+    let btn = document.createElement('button');
+    btn.className = 'prev-next-button';
+    btn.onclick = onclick;
+    btn.onKeyDown = onclick; // for accesibility / screenreaders
+    btn.ariaLabel = "move to previous or next round";
+
+    let a = document.createElement('a');
+    a.innerHTML = innerHTML;
+    btn.appendChild(a);
+    return btn;
 }
 
 function createSlider(sliderData, numTicks) {
@@ -307,8 +319,26 @@ function createSlider(sliderData, numTicks) {
     sliderDiv.addEventListener("touchstart", onSliderDragStart);
     sliderDiv.addEventListener("mousedown", onSliderDragStart);
 
+    // Add left/right arrows
+    let outerDiv = document.createElement('div');
+    outerDiv.style.display = "flex";
+    outerDiv.style.alignItems = "center";
+
+    let leftArrow = createArrowIcon('&#8249;', function() { 
+      setSliderValue(sliderData, sliderData.currentIndex-1); });
+    leftArrow.style.marginRight = "5px";
+    outerDiv.appendChild(leftArrow)
+
+    outerDiv.appendChild(sliderDiv)
+
+    let rightArrow = createArrowIcon('&#8250;', function() { 
+      setSliderValue(sliderData, sliderData.currentIndex+1); });
+    rightArrow.style.marginLeft = "5px";
+    outerDiv.appendChild(rightArrow)
+
     sliderData.ticks = ticks;
     sliderData.sliderDiv = sliderDiv;
+    sliderData.sliderAndArrowsDiv = outerDiv;
 }
 
 function toggleTimelineVisibility(sliderData) {
@@ -378,8 +408,11 @@ function createTimeline(sliderData) {
     /**
      * Generates the timeline based on sliderData.timelineData
      */
+    let timelineWrapper = document.createElement('div');
+
     let timelineDiv = document.createElement('div');
     timelineDiv.className = 'timeline';
+
     let timelineDivsPerTick = [];
 
     let floatWrap = document.createElement('div');
@@ -424,11 +457,13 @@ function createTimeline(sliderData) {
     })
 
     floatWrap.style.width = "max-content";
-    timelineDiv.style.width = "100%";
     timelineDiv.appendChild(floatWrap);
+
+    timelineWrapper.appendChild(timelineDiv);
 
     sliderData.timelineDivsPerTick = timelineDivsPerTick;
     sliderData.timelineDiv = timelineDiv;
+    sliderData.timelineWrapper = timelineWrapper;
 }
 
 function createFakeData(numTicks) {
@@ -542,25 +577,28 @@ function trs_createSliderAndTimeline(config) {
         /* To be filled out by createSlider */
         'ticks': null,
         'sliderDiv': null,
+        'sliderAndArrowsDiv': null,
 
         /* To be filled out by createTimeline */
         'currentIndex': null,
+        'timelineDiv': null,
+        'timelineWrapper': null,
 
         /* To be filled out by createExpandCollapseButton */
         'expandCollapseDiv': null,
 
         /* To be filled out when contracting timeline */
-        'timelineDivOriginalPadding': null,
-        'timelineDivOriginalBorder': null,
+        'timelineDivExpandedPadding': null,
+        'timelineDivExpandedBorder': null,
     };
 
     // Create slider
     createSlider(sliderData, config.numTicks);
-    outerDiv.appendChild(sliderData.sliderDiv);
+    outerDiv.appendChild(sliderData.sliderAndArrowsDiv);
 
     // Create timeline
     createTimeline(sliderData);
-    outerDiv.appendChild(sliderData.timelineDiv);
+    outerDiv.appendChild(sliderData.timelineWrapper);
 
     // Create "Expand Details" button
     createExpandCollapseButton(sliderData);

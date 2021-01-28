@@ -5,7 +5,6 @@ body {
     width: 100%;
 
     background-image: linear-gradient(10deg, #b1e0e6, #8ddae4);
-    box-shadow: 1px 5px 20px 0 #dedede;
 
     border-color: #333;
     border-style: solid;
@@ -31,9 +30,10 @@ body {
     cursor: grabbing;
 }
 
-.slider-when-timeline-visible {
+.slider-when-timeline-hidden {
     border-width: 1px;
     border-radius: 5px;
+    box-shadow: 1px 5px 20px 0 #dedede;
 }
 
 .slider-item {
@@ -59,18 +59,51 @@ body {
     min-height: 16px;
 }
 
+.prev-next-button {
+    border-radius: 50%;
+    background-color: black;
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    min-height: 20px;
+    line-height: 1em;
+    text-align: center;
+    vertical-align: middle;
+    border: none;
+}
+
+.prev-next-button:hover {
+    background-image: linear-gradient(135deg, #8f8f8f, #000);
+    cursor: pointer;
+}
+
+.prev-next-button a {
+    color: white;
+    vertical-align: middle;
+}
+
+.prev-next-button a:hover {
+    text-decoration: none;
+}
+
 /* Slider Timeline Data */
 .timeline {
-    width: 100%;
     border-width: 0 1px 1px 1px;
     border-color: #333;
     border-style: solid;
     border-radius: 0 0 5px 5px;
-    box-shadow: 1px 5px 20px 0 #dedede;
     padding-bottom: 5px;
+    background-image: linear-gradient(10deg, #b1e0e6, #8ddae4);
 
     overflow-y: auto;
     overflow-x: hidden;
+
+    width: calc(100% - 50px - 2px); /* 50px leaves room for the left/right arrow:
+                                       20px for the circle, 5px margin, x2.
+                                       2px is for the border */
+
+    margin-left: auto;
+    margin-right: auto;
 
     transition: max-height 0.6s ease-out,
                 opacity 0.3s ease-out;
@@ -123,7 +156,9 @@ body {
     background-color:#6a6f6f;
     width:12px;
     height:12px;
-    display:inline-block;
+    line-height: 12px;
+    vertical-align: middle;
+    display: inline-block;
     margin-left: 5px;
     float: right;
     border-radius:100%;
