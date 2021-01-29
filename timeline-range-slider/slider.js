@@ -235,8 +235,8 @@ function setConfigDefaults(config) {
     if (config.animateOnLoad === undefined) {
         config.animateOnLoad = false;
     }
-    if (config.showTimelineWhileAnimating === undefined) {
-        config.showTimelineWhileAnimating = true;
+    if (config.timelinePeeking === undefined) {
+        config.timelinePeeking = true;
     }
     if (config.hideActiveTickText === undefined) {
         config.hideActiveTickText = true;
@@ -308,6 +308,7 @@ function createLeftArrow(sliderData) {
     let leftArrow = createArrowIcon('&#8249;', function() { 
       setSliderValue(sliderData, sliderData.currentIndex-1); });
     leftArrow.style.marginRight = "5px";
+    leftArrow.style.float = "left";
     sliderData.leftArrow = leftArrow;
 }
 
@@ -315,6 +316,7 @@ function createRightArrow(sliderData) {
     let rightArrow = createArrowIcon('&#8250;', function() { 
       setSliderValue(sliderData, sliderData.currentIndex+1); });
     rightArrow.style.marginLeft = "5px";
+    rightArrow.style.float = "right";
     sliderData.rightArrow = rightArrow;
 }
 
@@ -498,7 +500,7 @@ function animateFrontToBack(sliderData) {
     sliderData.isAnimationInProgress = true;
     
     let doCollapseTimelineWhenDone = false;
-    if (sliderData.showTimelineWhileAnimating && !sliderData.isTimelineVisible) {
+    if (sliderData.timelinePeeking && !sliderData.isTimelineVisible) {
         doCollapseTimelineWhenDone = true;
         expandTimeline(sliderData);
     }
@@ -561,6 +563,7 @@ function trs_createSliderAndTimeline(config) {
     // Set style of outer div
     let outerDiv = document.getElementById(config.wrapperDivId);
     outerDiv.classList.add('trs-wrapper');
+    outerDiv.style.maxWidth = config.width + "px";
 
     // Set up data
     let sliderData = {
@@ -571,7 +574,7 @@ function trs_createSliderAndTimeline(config) {
         'tickLabelPrefix': config.tickLabelPrefix,
         'sliderValueChanged': config.sliderValueChanged,
         'timelineData': config.timelineData,
-        'showTimelineWhileAnimating': config.showTimelineWhileAnimating,
+        'timelinePeeking': config.timelinePeeking,
         'hideActiveTickText': config.hideActiveTickText,
         'isAnimationInProgress': false,
         'isTimelineVisible': false, // false until it's created
@@ -599,9 +602,7 @@ function trs_createSliderAndTimeline(config) {
 
     // Create center div
     let centerDiv = document.createElement('div');
-    centerDiv.style.flex = "1 1 auto"
-    centerDiv.style.maxWidth = config.width + "px";
-    centerDiv.style.width = "100%";
+    centerDiv.className = 'center-div';
 
     // Create slider
     createSlider(sliderData, config.numTicks);
@@ -618,9 +619,9 @@ function trs_createSliderAndTimeline(config) {
     // Create left/right arrows and place all in outer div
     createLeftArrow(sliderData);
     createRightArrow(sliderData);
+    outerDiv.appendChild(sliderData.rightArrow)
     outerDiv.appendChild(sliderData.leftArrow)
     outerDiv.appendChild(centerDiv)
-    outerDiv.appendChild(sliderData.rightArrow)
 
     // Store data
     sliders[sliderData.sliderDiv.id] = sliderData;
