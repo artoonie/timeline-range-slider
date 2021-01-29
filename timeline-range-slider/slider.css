@@ -70,14 +70,16 @@ body {
     min-width: 28px !important; /* Override the default width */
     min-height: 16px;
 }
-.slider-item-hidden-slider-past {
+
+.slider-item-hidden-slider {
     font-size: 0.7em;
+}
+.slider-item-hidden-slider-past {
     line-height: 1rem;
 }
 .slider-item-hidden-slider-future  {
-    font-size: 0.7em;
-    line-height: 1rem;
     color: #545454 !important;
+    line-height: 1rem;
 }
 .slider-item-hidden-slider-active {
     font-weight: bold;
