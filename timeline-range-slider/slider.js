@@ -312,7 +312,6 @@ function createArrowIcon(innerHTML, onclick) {
 function createLeftArrow(sliderData) {
     let leftArrow = createArrowIcon('&#8249;', function() { 
       setSliderValue(sliderData, sliderData.currentIndex-1); });
-    leftArrow.style.marginRight = "5px";
     leftArrow.style.float = "left";
     sliderData.leftArrow = leftArrow;
 }
@@ -320,7 +319,6 @@ function createLeftArrow(sliderData) {
 function createRightArrow(sliderData) {
     let rightArrow = createArrowIcon('&#8250;', function() { 
       setSliderValue(sliderData, sliderData.currentIndex+1); });
-    rightArrow.style.marginLeft = "5px";
     rightArrow.style.float = "right";
     sliderData.rightArrow = rightArrow;
 }
