@@ -9,18 +9,23 @@ let sliders = {}
  * The id of this can index into sliders above. */
 let activeSlideTarget = null;
 
-function createTick(maxWidth, tickText, tickColor) {
+function createTick(maxWidth, tickText, tickColor, hideActiveTickText) {
     /**
      * Creates a single tick mark
      * @param {float} maxWidth maximum width of this tick
      * @param {string} tickText the tick marker text
      * @param {string} tickColor the color of active ticks
+     * @param {bool} hideActiveTickText as per the confi
      * @return the div containing the tick
      */
     let div = document.createElement('div');
-    div.setAttribute('class', 'slider-item');
     div.style.maxWidth = maxWidth + "px";
     div.style.color = tickColor;
+
+    div.classList.add('slider-item');
+    if (!hideActiveTickText) {
+      div.classList.add('slider-item-hidden-slider');
+    }
 
     const newContent = document.createTextNode(tickText);
     div.appendChild(newContent);
@@ -334,7 +339,7 @@ function createSlider(sliderData, numTicks) {
     for (let i = 0; i < numTicks; ++i) {
         const tickColor = getColorFor(sliderData, i);
         const tickText = getTickTextFor(sliderData, i);
-        const tick = createTick(maxWidth, tickText, tickColor);
+        const tick = createTick(maxWidth, tickText, tickColor, sliderData.hideActiveTickText);
         const elem = sliderDiv.appendChild(tick);
         ticks.push(elem);
     }
