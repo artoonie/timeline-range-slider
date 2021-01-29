@@ -92,20 +92,20 @@ slider.toggleTimelineVisibility('slide');
 ### Configuration options
 The `config` dictionary has the following options:
 
-| key | default | description |
-| --- | --- | --- |
-| `wrapperDivId`* | _required_ | The div id in which to place the slider |
-| `numTicks`* | _required_ | The number of elements in the slider |
-| `width` | `600` | The maximum width of the slider. If the page is narrower than this, the slider will responsively scale. |
-| `hideTimelineInitially` | `true` | Whether or not the timeline is initially expanded or collapsed |
-| `tickLabelPrefix` | `'Round '` | What does each tick represent? Placed in the header row of the timeline. |
-| `hideActiveTickText` | `false` | Should we hide `tickText` on the active tick? By default, we hide the text and show a slider via CSS. Only change this if you override the CSS for the active tick. |
-| `tickText` | `'•'` | The text that marks a tick in the slider. Can be a single string or a list. If it's a list, must be the size of numTicks. |
-| `color` | `'orangered'` | The color of past tick marks. Can be a single string or a list. If it's a list, must be of size numTicks. |
-| `sliderValueChanged` | `null` | Callback to be notified when the slider changes. |
-| `animateOnLoad` | false | Should the slider animate all steps on load? |
-| `showTimelineWhileAnimating` | true | Should the timeline expand during animation? |
-| `timelineData` | random data | The timeline data. See below for how to structure this. |
+| key/default | description |
+| --- | --- |
+| `wrapperDivId`\* <br/><br/> _required_ | The div id in which to place the slider |
+| `numTicks`\* <br/><br/> _required_ | The number of elements in the slider |
+| `width` <br/><br/> default: `600` | The maximum width of the slider. If the page is narrower than this, the slider will responsively scale. |
+| `hideTimelineInitially` <br/><br/> default: `true` | Whether or not the timeline is initially expanded or collapsed |
+| `tickLabelPrefix` <br/><br/> default: `'Round '` | What does each tick represent? Placed in the header row of the timeline. |
+| `hideActiveTickText` <br/><br/> default: `false` | Should we hide `tickText` on the active tick? By default, we hide the text and show a slider via CSS. Only change this if you override the CSS for the active tick. |
+| `tickText` <br/><br/> default: `'•'` | The text that marks a tick in the slider. Can be a single string or a list. If it's a list, must be the size of numTicks. |
+| `color` <br/><br/> default: `'orangered'` | The color of past tick marks. Can be a single string or a list. If it's a list, must be of size numTicks. |
+| `sliderValueChanged` <br/><br/> default: `null` | Callback to be notified when the slider changes. |
+| `animateOnLoad` <br/><br/> default: false | Should the slider animate all steps on load? |
+| `timelinePeeking` <br/><br/> default: true | Should the timeline "peek open" during animation, and close after the animation completes? |
+| `timelineData` <br/><br/> default: random data | The timeline data. See below for how to structure this. |
 
 #### Timeline data structure
 The `timelineData` contains the events that occurred at each "tick" in the timeline.
@@ -114,8 +114,12 @@ A single event is structured as follows:
 ```javascript
 const oneTimelineItem = {
   summaryText: "Short summary",
-  className: "custom-class-for-summary-label", /* optional */
-  moreInfoText: "Description to show when hovering" /* optional */
+
+  /* optional */
+  className: "custom-class-for-summary-label",
+
+  /* optional */
+  moreInfoText: "Description to show when hovering" 
 }
 ```
 

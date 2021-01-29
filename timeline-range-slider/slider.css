@@ -3,8 +3,15 @@ body {
 }
 
 .trs-wrapper {
-  display: flex;
-  width: fit-content;
+  overflow: hidden;
+}
+
+.center-div {
+    flex: 1 1 auto;
+
+    /* Room for prev/next button */
+    margin-left: 30px;
+    margin-right: 30px;
 }
 
 .slider {
