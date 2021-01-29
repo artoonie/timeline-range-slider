@@ -73,7 +73,8 @@ function setSliderValue(sliderData, value) {
     /**
      * Sets the value of the slider, updating classes and notifying the timeline
      */
-    value = Math.min(value, sliderData.ticks.length-1);
+    const numTicks = sliderData.ticks.length;
+    value = Math.min(value, numTicks-1);
     value = Math.max(value, 0);
 
     if (sliderData.currentIndex == value) {
@@ -98,6 +99,10 @@ function setSliderValue(sliderData, value) {
     if (sliderData.isTimelineVisible) {
       updateTimeline(sliderData, value);
     }
+
+    // Update the sliders with this value
+    sliderData.leftArrow.disabled = value == 0
+    sliderData.rightArrow.disabled = value == (numTicks - 1)
 
     // Optional callback
     if (sliderData.sliderValueChanged) {
@@ -303,14 +308,14 @@ function createLeftArrow(sliderData) {
     let leftArrow = createArrowIcon('&#8249;', function() { 
       setSliderValue(sliderData, sliderData.currentIndex-1); });
     leftArrow.style.marginRight = "5px";
-    return leftArrow;
+    sliderData.leftArrow = leftArrow;
 }
 
 function createRightArrow(sliderData) {
     let rightArrow = createArrowIcon('&#8250;', function() { 
       setSliderValue(sliderData, sliderData.currentIndex+1); });
     rightArrow.style.marginLeft = "5px";
-    return rightArrow;
+    sliderData.rightArrow = rightArrow;
 }
 
 function createSlider(sliderData, numTicks) {
@@ -580,6 +585,10 @@ function trs_createSliderAndTimeline(config) {
         'timelineDiv': null,
         'timelineWrapper': null,
 
+        /* To be filled out by createLeftArrow / createRightArrow */
+        'leftArrow': null,
+        'rightArrow': null,
+
         /* To be filled out by createExpandCollapseButton */
         'expandCollapseDiv': null,
 
@@ -607,11 +616,11 @@ function trs_createSliderAndTimeline(config) {
     centerDiv.appendChild(sliderData.expandCollapseDiv);
 
     // Create left/right arrows and place all in outer div
-    let leftArrow = createLeftArrow(sliderData);
-    let rightArrow = createRightArrow(sliderData);
-    outerDiv.appendChild(leftArrow)
+    createLeftArrow(sliderData);
+    createRightArrow(sliderData);
+    outerDiv.appendChild(sliderData.leftArrow)
     outerDiv.appendChild(centerDiv)
-    outerDiv.appendChild(rightArrow)
+    outerDiv.appendChild(sliderData.rightArrow)
 
     // Store data
     sliders[sliderData.sliderDiv.id] = sliderData;

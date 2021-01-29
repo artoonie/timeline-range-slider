@@ -98,6 +98,10 @@ body {
     vertical-align: middle;
     border: none;
 }
+.prev-next-button:disabled {
+    background-color: gray;
+    pointer-events: none;
+}
 
 .prev-next-button:hover {
     background-image: linear-gradient(135deg, #8f8f8f, #000);
