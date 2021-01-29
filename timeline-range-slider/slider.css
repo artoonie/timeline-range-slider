@@ -86,8 +86,7 @@ body {
     font-size: 1.2em;
     background-image: url(drag-affordance.png);
 
-    background-repeat-y: no-repeat;
-    background-repeat-x: repeat;
+    background-repeat: repeat-x;
     background-position-y: bottom;
     background-position-x: left;
     background-size: 6px;
@@ -229,7 +228,7 @@ body {
 .expand-collapse-button {
     font-size: 0.7em;
 
-    width: fit-content;
+    width: max-content;
     padding: 2px 15px;
 
     text-align: center;
