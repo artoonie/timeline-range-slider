@@ -1,5 +1,5 @@
 /*
- * Part 1 of this file: Slide functionality
+ * Global vars - storing data for callbacks
  */
 
 /* Storing slider data. Maps element to info about it. */
@@ -9,21 +9,24 @@ let sliders = {}
  * The id of this can index into sliders above. */
 let activeSlideTarget = null;
 
-function createTick(maxWidth, tickText, tickColor, hideActiveTickText) {
+/*
+ * Functions for slider creation
+ */
+
+function createTick(sliderData, tickIndex) {
     /**
      * Creates a single tick mark
-     * @param {float} maxWidth maximum width of this tick
-     * @param {string} tickText the tick marker text
-     * @param {string} tickColor the color of active ticks
-     * @param {bool} hideActiveTickText as per the confi
-     * @return the div containing the tick
      */
+    const maxWidth = sliderData.width / sliderData.numTicks;
+    const tickColor = getColorFor(sliderData, tickIndex);
+    const tickText = getTickTextFor(sliderData, tickIndex);
+
     let div = document.createElement('div');
     div.style.maxWidth = maxWidth + "px";
     div.style.color = tickColor;
 
     div.classList.add('slider-item');
-    if (!hideActiveTickText) {
+    if (!sliderData.hideActiveTickText) {
       div.classList.add('slider-item-hidden-slider');
     }
 
@@ -78,13 +81,13 @@ function setSliderValue(sliderData, value) {
     /**
      * Sets the value of the slider, updating classes and notifying the timeline
      */
-    const numTicks = sliderData.ticks.length;
-    value = Math.min(value, numTicks-1);
+    value = Math.min(value, sliderData.numTicks-1);
     value = Math.max(value, 0);
 
     if (sliderData.currentIndex == value) {
       return;
     }
+
 
     // Edit text for each tick
     if (sliderData.hideActiveTickText) {
@@ -107,7 +110,7 @@ function setSliderValue(sliderData, value) {
 
     // Update the sliders with this value
     sliderData.leftArrow.disabled = value == 0
-    sliderData.rightArrow.disabled = value == (numTicks - 1)
+    sliderData.rightArrow.disabled = value == (sliderData.numTicks - 1)
 
     // Optional callback
     if (sliderData.sliderValueChanged) {
@@ -136,8 +139,8 @@ function setPosition(event) {
     const x = clientXOfEvent(event) - rect.left;
     const targetData = sliders[activeSlideTarget.id];
 
-    const timelineWidth = targetData.sliderDiv.clientWidth;
-    const widthPerTick = timelineWidth / targetData.ticks.length;
+    const sliderWidth = targetData.sliderDiv.clientWidth;
+    const widthPerTick = sliderWidth / targetData.numTicks;
     const value = Math.floor(x / widthPerTick);
 
     const sliderData = sliders[activeSlideTarget.id];
@@ -202,6 +205,11 @@ function validateConfig(config) {
     // Validate color and tickText
     ensureConfigCorrectSizeIfAList(config, 'color');
     ensureConfigCorrectSizeIfAList(config, 'tickText');
+
+    // Fix width if given in pixels
+    if (typeof config.width === 'number') {
+        config.width += 'px';
+    }
 }
 
 function setConfigDefaults(config) {
@@ -310,15 +318,17 @@ function createArrowIcon(innerHTML, onclick) {
 }
 
 function createLeftArrow(sliderData) {
-    let leftArrow = createArrowIcon('&#8249;', function() { 
-      setSliderValue(sliderData, sliderData.currentIndex-1); });
+    let leftArrow = createArrowIcon('&#8249;', function() {
+      setSliderValue(sliderData, sliderData.currentIndex-1);
+    });
     leftArrow.style.float = "left";
     sliderData.leftArrow = leftArrow;
 }
 
 function createRightArrow(sliderData) {
-    let rightArrow = createArrowIcon('&#8250;', function() { 
-      setSliderValue(sliderData, sliderData.currentIndex+1); });
+    let rightArrow = createArrowIcon('&#8250;', function() {
+      setSliderValue(sliderData, sliderData.currentIndex+1);
+    });
     rightArrow.style.float = "right";
     sliderData.rightArrow = rightArrow;
 }
@@ -333,11 +343,8 @@ function createSlider(sliderData, numTicks) {
     sliderDiv.className = 'slider';
 
     let ticks = [];
-    const maxWidth = sliderData.width / numTicks;
     for (let i = 0; i < numTicks; ++i) {
-        const tickColor = getColorFor(sliderData, i);
-        const tickText = getTickTextFor(sliderData, i);
-        const tick = createTick(maxWidth, tickText, tickColor, sliderData.hideActiveTickText);
+        const tick = createTick(sliderData, i);
         const elem = sliderDiv.appendChild(tick);
         ticks.push(elem);
     }
@@ -501,7 +508,7 @@ function createFakeData(numTicks) {
 
 function animateFrontToBack(sliderData) {
     sliderData.isAnimationInProgress = true;
-    
+
     let doCollapseTimelineWhenDone = false;
     if (sliderData.timelinePeeking && !sliderData.isTimelineVisible) {
         doCollapseTimelineWhenDone = true;
@@ -514,7 +521,7 @@ function animateFrontToBack(sliderData) {
 function animationStepRequested(sliderData, index, doCollapseTimelineWhenDone, currentTimestamp) {
     setSliderValue(sliderData, index);
 
-    if (index < sliderData.ticks.length) {
+    if (index < sliderData.numTicks) {
         scheduleNextAnimationStep(sliderData, index+1, doCollapseTimelineWhenDone, currentTimestamp);
     } else {
         sliderData.isAnimationInProgress = false;
@@ -536,7 +543,7 @@ function scheduleNextAnimationStep(sliderData, index, doCollapseTimelineWhenDone
             return;
         }
 
-        const timeBetweenSteps = Math.min(1000 / sliderData.ticks.length, 100);
+        const timeBetweenSteps = Math.min(1000 / sliderData.numTicks, 100);
         if (elapsed < timeBetweenSteps) { // Take 1s total, but at least 100ms
             scheduleNextAnimationStep(sliderData, index, doCollapseTimelineWhenDone, startTimestamp);
             return;
@@ -551,27 +558,13 @@ function sliderDataFromWrapperDivId(wrapperDivId) {
     return sliders[sliderId];
 }
 
-/**
- * Public methods below
- */
-
-function trs_createSliderAndTimeline(config) {
-    /**
-     * Creates the slider and the timeline
-     * @param options User-controlled options, see the README
-     */
-
+function sliderDataFromConfig(config) {
     setConfigDefaults(config);
 
-    // Set style of outer div
-    let outerDiv = document.getElementById(config.wrapperDivId);
-    outerDiv.classList.add('trs-wrapper');
-    outerDiv.style.maxWidth = config.width + "px";
-
-    // Set up data
-    let sliderData = {
+    return {
         'id': config.wrapperDivId,
         'width': config.width,
+        'numTicks': config.numTicks,
         'tickText': config.tickText,
         'color': config.color,
         'tickLabelPrefix': config.tickLabelPrefix,
@@ -602,6 +595,23 @@ function trs_createSliderAndTimeline(config) {
         'timelineDivExpandedPadding': null,
         'timelineDivExpandedBorder': null,
     };
+}
+
+/**
+ * Public methods below
+ */
+
+function trs_createSliderAndTimeline(config) {
+    /**
+     * Creates the slider and the timeline
+     * @param options User-controlled options, see the README
+     */
+    let sliderData = sliderDataFromConfig(config);
+
+    // Set style of outer div
+    let outerDiv = document.getElementById(config.wrapperDivId);
+    outerDiv.classList.add('trs-wrapper');
+    outerDiv.style.maxWidth = config.width;
 
     // Create center div
     let centerDiv = document.createElement('div');
@@ -658,6 +668,7 @@ function trs_toggleTimelineVisibility(wrapperDivId) {
 }
 
 // In case of node.js
+/* eslint no-undef: ["off"] */
 if (typeof exports !== typeof undefined) {
     exports.createSliderAndTimeline = trs_createSliderAndTimeline
     exports.moveSliderTo = trs_moveSliderTo

@@ -129,7 +129,7 @@ A complete `timelineData` structure might look like:
 ```javascript
 const timelineData = [
     [
-        {summaryText: "Event 3, tick 1"},
+        {summaryText: "Event 1, tick 1"},
         {summaryText: "Event 2, tick 1"}
     ],
     [

@@ -7,7 +7,8 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "jest"
+    "test": "jest --coverage timeline-range-slider",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
@@ -26,6 +27,8 @@
   "homepage": "https://artoonie.github.io/timeline-range-slider/",
   "devDependencies": {
     "eslint": "^7.18.0",
-    "jest": "^26.6.3"
+    "jest": "^26.6.3",
+    "jest-extended": "^0.11.5",
+    "eslint-plugin-jest": "^24.1.3"
   }
 }
