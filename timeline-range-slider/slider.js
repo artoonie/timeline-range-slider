@@ -9,21 +9,20 @@ let sliders = {}
  * The id of this can index into sliders above. */
 let activeSlideTarget = null;
 
-function createTick(maxWidth, tickText, tickColor, hideActiveTickText) {
+function createTick(sliderData, tickIndex) {
     /**
      * Creates a single tick mark
-     * @param {float} maxWidth maximum width of this tick
-     * @param {string} tickText the tick marker text
-     * @param {string} tickColor the color of active ticks
-     * @param {bool} hideActiveTickText as per the confi
-     * @return the div containing the tick
      */
+    const maxWidth = sliderData.width / sliderData.ticks.length;
+    const tickColor = getColorFor(sliderData, tickIndex);
+    const tickText = getTickTextFor(sliderData, tickIndex);
+
     let div = document.createElement('div');
     div.style.maxWidth = maxWidth + "px";
     div.style.color = tickColor;
 
     div.classList.add('slider-item');
-    if (!hideActiveTickText) {
+    if (!sliderData.hideActiveTickText) {
       div.classList.add('slider-item-hidden-slider');
     }
 
@@ -310,15 +309,17 @@ function createArrowIcon(innerHTML, onclick) {
 }
 
 function createLeftArrow(sliderData) {
-    let leftArrow = createArrowIcon('&#8249;', function() { 
-      setSliderValue(sliderData, sliderData.currentIndex-1); });
+    let leftArrow = createArrowIcon('&#8249;', function() {
+      setSliderValue(sliderData, sliderData.currentIndex-1);
+    });
     leftArrow.style.float = "left";
     sliderData.leftArrow = leftArrow;
 }
 
 function createRightArrow(sliderData) {
-    let rightArrow = createArrowIcon('&#8250;', function() { 
-      setSliderValue(sliderData, sliderData.currentIndex+1); });
+    let rightArrow = createArrowIcon('&#8250;', function() {
+      setSliderValue(sliderData, sliderData.currentIndex+1);
+    });
     rightArrow.style.float = "right";
     sliderData.rightArrow = rightArrow;
 }
@@ -333,11 +334,8 @@ function createSlider(sliderData, numTicks) {
     sliderDiv.className = 'slider';
 
     let ticks = [];
-    const maxWidth = sliderData.width / numTicks;
     for (let i = 0; i < numTicks; ++i) {
-        const tickColor = getColorFor(sliderData, i);
-        const tickText = getTickTextFor(sliderData, i);
-        const tick = createTick(maxWidth, tickText, tickColor, sliderData.hideActiveTickText);
+        const tick = createTick(sliderData, i);
         const elem = sliderDiv.appendChild(tick);
         ticks.push(elem);
     }
@@ -501,7 +499,7 @@ function createFakeData(numTicks) {
 
 function animateFrontToBack(sliderData) {
     sliderData.isAnimationInProgress = true;
-    
+
     let doCollapseTimelineWhenDone = false;
     if (sliderData.timelinePeeking && !sliderData.isTimelineVisible) {
         doCollapseTimelineWhenDone = true;
@@ -658,6 +656,7 @@ function trs_toggleTimelineVisibility(wrapperDivId) {
 }
 
 // In case of node.js
+/* eslint no-undef: ["off"] */
 if (typeof exports !== typeof undefined) {
     exports.createSliderAndTimeline = trs_createSliderAndTimeline
     exports.moveSliderTo = trs_moveSliderTo
