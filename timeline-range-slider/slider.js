@@ -1,5 +1,5 @@
 /*
- * Part 1 of this file: Slide functionality
+ * Global vars - storing data for callbacks
  */
 
 /* Storing slider data. Maps element to info about it. */
@@ -9,11 +9,15 @@ let sliders = {}
  * The id of this can index into sliders above. */
 let activeSlideTarget = null;
 
+/*
+ * Functions for slider creation
+ */
+
 function createTick(sliderData, tickIndex) {
     /**
      * Creates a single tick mark
      */
-    const maxWidth = sliderData.width / sliderData.ticks.length;
+    const maxWidth = sliderData.width / sliderData.numTicks;
     const tickColor = getColorFor(sliderData, tickIndex);
     const tickText = getTickTextFor(sliderData, tickIndex);
 
@@ -77,13 +81,13 @@ function setSliderValue(sliderData, value) {
     /**
      * Sets the value of the slider, updating classes and notifying the timeline
      */
-    const numTicks = sliderData.ticks.length;
-    value = Math.min(value, numTicks-1);
+    value = Math.min(value, sliderData.numTicks-1);
     value = Math.max(value, 0);
 
     if (sliderData.currentIndex == value) {
       return;
     }
+
 
     // Edit text for each tick
     if (sliderData.hideActiveTickText) {
@@ -106,7 +110,7 @@ function setSliderValue(sliderData, value) {
 
     // Update the sliders with this value
     sliderData.leftArrow.disabled = value == 0
-    sliderData.rightArrow.disabled = value == (numTicks - 1)
+    sliderData.rightArrow.disabled = value == (sliderData.numTicks - 1)
 
     // Optional callback
     if (sliderData.sliderValueChanged) {
@@ -135,8 +139,8 @@ function setPosition(event) {
     const x = clientXOfEvent(event) - rect.left;
     const targetData = sliders[activeSlideTarget.id];
 
-    const timelineWidth = targetData.sliderDiv.clientWidth;
-    const widthPerTick = timelineWidth / targetData.ticks.length;
+    const sliderWidth = targetData.sliderDiv.clientWidth;
+    const widthPerTick = sliderWidth / targetData.numTicks;
     const value = Math.floor(x / widthPerTick);
 
     const sliderData = sliders[activeSlideTarget.id];
@@ -201,6 +205,11 @@ function validateConfig(config) {
     // Validate color and tickText
     ensureConfigCorrectSizeIfAList(config, 'color');
     ensureConfigCorrectSizeIfAList(config, 'tickText');
+
+    // Fix width if given in pixels
+    if (typeof config.width === 'number') {
+        config.width += 'px';
+    }
 }
 
 function setConfigDefaults(config) {
@@ -512,7 +521,7 @@ function animateFrontToBack(sliderData) {
 function animationStepRequested(sliderData, index, doCollapseTimelineWhenDone, currentTimestamp) {
     setSliderValue(sliderData, index);
 
-    if (index < sliderData.ticks.length) {
+    if (index < sliderData.numTicks) {
         scheduleNextAnimationStep(sliderData, index+1, doCollapseTimelineWhenDone, currentTimestamp);
     } else {
         sliderData.isAnimationInProgress = false;
@@ -534,7 +543,7 @@ function scheduleNextAnimationStep(sliderData, index, doCollapseTimelineWhenDone
             return;
         }
 
-        const timeBetweenSteps = Math.min(1000 / sliderData.ticks.length, 100);
+        const timeBetweenSteps = Math.min(1000 / sliderData.numTicks, 100);
         if (elapsed < timeBetweenSteps) { // Take 1s total, but at least 100ms
             scheduleNextAnimationStep(sliderData, index, doCollapseTimelineWhenDone, startTimestamp);
             return;
@@ -549,27 +558,13 @@ function sliderDataFromWrapperDivId(wrapperDivId) {
     return sliders[sliderId];
 }
 
-/**
- * Public methods below
- */
-
-function trs_createSliderAndTimeline(config) {
-    /**
-     * Creates the slider and the timeline
-     * @param options User-controlled options, see the README
-     */
-
+function sliderDataFromConfig(config) {
     setConfigDefaults(config);
 
-    // Set style of outer div
-    let outerDiv = document.getElementById(config.wrapperDivId);
-    outerDiv.classList.add('trs-wrapper');
-    outerDiv.style.maxWidth = config.width + "px";
-
-    // Set up data
-    let sliderData = {
+    return {
         'id': config.wrapperDivId,
         'width': config.width,
+        'numTicks': config.numTicks,
         'tickText': config.tickText,
         'color': config.color,
         'tickLabelPrefix': config.tickLabelPrefix,
@@ -600,6 +595,23 @@ function trs_createSliderAndTimeline(config) {
         'timelineDivExpandedPadding': null,
         'timelineDivExpandedBorder': null,
     };
+}
+
+/**
+ * Public methods below
+ */
+
+function trs_createSliderAndTimeline(config) {
+    /**
+     * Creates the slider and the timeline
+     * @param options User-controlled options, see the README
+     */
+    let sliderData = sliderDataFromConfig(config);
+
+    // Set style of outer div
+    let outerDiv = document.getElementById(config.wrapperDivId);
+    outerDiv.classList.add('trs-wrapper');
+    outerDiv.style.maxWidth = config.width;
 
     // Create center div
     let centerDiv = document.createElement('div');

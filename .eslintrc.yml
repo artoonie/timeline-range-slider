@@ -3,7 +3,7 @@ env:
   es2021: true
 overrides:
   - files:
-      - test.js
+      - timeline-range-slider/__tests__/*
     env:
       node: true
       jest/globals: true

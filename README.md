@@ -5,6 +5,7 @@ See this project at [artoonie.github.io/timeline-range-slider](https://artoonie.
 The project page has dynamic sliders you can interact with.
 
 ![Node.js CI](https://github.com/artoonie/timeline-range-slider/workflows/Node.js%20CI/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/artoonie/timeline-range-slider/badge.svg?branch=main)](https://coveralls.io/github/artoonie/timeline-range-slider?branch=main)
 
 
 # A lightweight, dependency-free range slider
@@ -146,7 +147,7 @@ A complete `timelineData` structure might look like:
 ```javascript
 const timelineData = [
     [
-        {summaryText: "Event 3, tick 1"},
+        {summaryText: "Event 1, tick 1"},
         {summaryText: "Event 2, tick 1"}
     ],
     [
