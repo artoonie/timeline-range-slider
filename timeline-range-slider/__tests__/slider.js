@@ -15,12 +15,15 @@ function div() {
 function ticks() {
   return document.getElementsByClassName('slider-item');
 }
+function timelines() {
+  return document.getElementsByClassName('timeline');
+}
 function sliderDiv() {
   const sliders = document.getElementsByClassName('slider');
   expect(sliders.length).toEqual(1);
   return sliders[0];
 }
-function clickOn(target, additionalData) {
+function createMouseEvent(target, additionalData, eventType) {
   let data = {
     bubbles: true,
     cancelable: true,
@@ -29,31 +32,156 @@ function clickOn(target, additionalData) {
     ...additionalData
   };
 
-  const mousedown = new MouseEvent('mousedown', data);
-  const mouseup = new MouseEvent('mouseup', data);
-
-  target.dispatchEvent(mousedown);
-  target.dispatchEvent(mouseup);
+  if (eventType.startsWith('mouse')) {
+    return new MouseEvent(eventType, data);
+  }
+  if (eventType.startsWith('touch')) {
+    return new TouchEvent(eventType, data);
+  }
+  throw new Error('Unexpected event type.')
 }
-function goToTick(tickNum, numTicks) {
+function mouseEventsAt(tickNum, numTicks, mouseEvents, additionalData) {
+  /**
+   * @param mouseEvents: an array of types of mouse events to create and dispatch
+   * @param additionalData: additional data to get added to the mouse event
+   */
   const target = sliderDiv();
 
-  // set virtual width
-  jest.spyOn(target, 'clientWidth', 'get').
-       mockImplementation(() => 100*numTicks);
+  jest.spyOn(target, 'clientWidth', 'get').mockImplementation(() => 100*numTicks);
 
-  // Called several more times after each click
-  clickOn(target, {clientX: 100*tickNum})
+  mouseEvents.map((mouseEvent) => {
+    const event = createMouseEvent(target, additionalData, mouseEvent);
+    target.dispatchEvent(event);
+  })
+}
+function clickOnTick(tickNum, numTicks) {
+  mouseEventsAt(tickNum, numTicks, ['mousedown', 'mouseup'], {
+    clientX: 100*tickNum
+  });
 }
 
-describe('Simple', () => {
+describe('API basic tests', () => {
   test('Create entire timeline and do not crash', () => {
     slider.createSliderAndTimeline({
       'wrapperDivId': 'div-id',
       'numTicks': 5
     });
   });
+  test('test animation and manually moving slider', () => {
+    slider.createSliderAndTimeline({
+      'wrapperDivId': 'div-id',
+      'numTicks': 5
+    });
+    // Slider is at end on creation
+    slider.animate('div-id');
+    expect(ticks()[4].classList).toContain('slider-item-active');
+
+    // Manually move to 0
+    slider.moveSliderTo('div-id', 0);
+    expect(ticks()[0].classList).toContain('slider-item-active');
+
+    // Moves to 4 after animation
+    slider.animate('div-id');
+    expect(ticks()[4].classList).toContain('slider-item-active');
+  });
+  test('test timeline visibility', () => {
+    slider.createSliderAndTimeline({
+      'wrapperDivId': 'div-id',
+      'numTicks': 3
+    });
+
+    const timeline = timelines()[0];
+    expect(timeline.style.opacity).toEqual("0");
+    slider.toggleTimelineVisibility('div-id');
+    expect(timeline.style.opacity).toEqual("1");
+    slider.toggleTimelineVisibility('div-id');
+    expect(timeline.style.opacity).toEqual("0");
+  });
 });
+
+describe('Interaction tests', () => {
+  test('Dragging succeeds', () => {
+    const numTicks = 5;
+    slider.createSliderAndTimeline({
+      'wrapperDivId': 'div-id',
+      numTicks
+    });
+
+    expect(ticks()[numTicks-1].classList).toContain('slider-item-active');
+
+    // Tap on tick 2 - tick 2 now active
+    let tickNum = 2;
+    mouseEventsAt(tickNum, numTicks, ['touchstart'], {
+      targetTouches: [{clientX: 100*tickNum}]
+    });
+    expect(ticks()[tickNum].classList).toContain('slider-item-active');
+
+    // Move to 4 - tick 4 now active
+    tickNum = 4;
+    mouseEventsAt(tickNum, numTicks, ['touchmove'], {
+      targetTouches: [{clientX: 100*tickNum}]
+    });
+    expect(ticks()[tickNum].classList).toContain('slider-item-active');
+
+    // Release - no change
+    mouseEventsAt(tickNum, numTicks, ['touchend'], {
+      targetTouches: [{clientX: 100*tickNum}]
+    });
+    expect(ticks()[tickNum].classList).toContain('slider-item-active');
+  });
+  test('Left and right arrows work', () => {
+    slider.createSliderAndTimeline({
+      'wrapperDivId': 'div-id',
+      'numTicks': 5
+    });
+
+    const buttons = document.getElementsByClassName('prev-next-button');
+    const [rightButton, leftButton] = buttons;
+
+    expect(ticks()[4].classList).toContain('slider-item-active');
+    leftButton.click();
+    expect(ticks()[3].classList).toContain('slider-item-active');
+    rightButton.click();
+    expect(ticks()[4].classList).toContain('slider-item-active');
+  });
+  test('Question mark hover works', () => {
+    slider.createSliderAndTimeline({
+      'wrapperDivId': 'div-id',
+      'numTicks': 5
+    });
+
+    const aQuestionMark = document.getElementsByClassName('question-mark')[0];
+
+    expect(document.getElementById('timeline-info-tooltip')).toEqual(null);
+    aQuestionMark.dispatchEvent(createMouseEvent(aQuestionMark, {}, 'mouseover'));
+    expect(document.getElementById('timeline-info-tooltip')).not.toEqual(null);
+    aQuestionMark.dispatchEvent(createMouseEvent(aQuestionMark, {}, 'mouseout'));
+    expect(document.getElementById('timeline-info-tooltip')).toEqual(null);
+  });
+  test('Animation cancels if drag starts', () => {
+    const mockCallback = jest.fn((value) => {
+      if (value == 2) {
+        // Move back to tick 1
+        clickOnTick(1, 4);
+      }
+      // It should never hit 3 - only hits 0, 1, 2, and 4
+      expect(value).not.toEqual(3);
+    });
+
+    slider.createSliderAndTimeline({
+      'wrapperDivId': 'div-id',
+      'numTicks': 5,
+      'sliderValueChanged': mockCallback
+    });
+
+    // start animating - the callback will cancel it
+    slider.animate('div-id');
+
+    // animation stopped after the first frame
+    expect(ticks()[1].classList).toContain('slider-item-active');
+  });
+});
+
 
 describe('wrapperDivId config', () => {
   test('Passing invalid div', () => {
@@ -132,9 +260,9 @@ describe('hideTimelineInitially config', () => {
       'wrapperDivId': 'div-id',
       'numTicks': 3
     });
-    const labels = document.getElementsByClassName('timeline');
-    expect(labels[0].style.maxHeight).toEqual("0");
-    expect(labels[0].style.opacity).toEqual("0");
+    const timeline = timelines()[0];
+    expect(timeline.style.maxHeight).toEqual("0");
+    expect(timeline.style.opacity).toEqual("0");
   });
   test('hidden timeline notifies slider', () => {
     slider.createSliderAndTimeline({
@@ -150,9 +278,9 @@ describe('hideTimelineInitially config', () => {
       'numTicks': 3,
       'hideTimelineInitially': false
     });
-    const labels = document.getElementsByClassName('timeline');
-    expect(labels[0].style.maxHeight).not.toEqual("0");
-    expect(labels[0].style.opacity).not.toEqual("0");
+    const timeline = timelines()[0];
+    expect(timeline.style.maxHeight).not.toEqual("0");
+    expect(timeline.style.opacity).not.toEqual("0");
   });
 });
 
@@ -170,9 +298,9 @@ describe('sliderValueChanged config', () => {
     expect(mockCallback.mock.calls.length).toBe(1);
     expect(mockCallback.mock.calls[0][0]).toBe(2);
 
-    goToTick(0, 3);
-    goToTick(1, 3);
-    goToTick(2, 3);
+    clickOnTick(0, 3);
+    clickOnTick(1, 3);
+    clickOnTick(2, 3);
 
     expect(mockCallback.mock.calls.length).toBe(4);
     expect(mockCallback.mock.calls[1][0]).toBe(0);
@@ -258,7 +386,7 @@ describe('color config', () => {
       'numTicks': 3
     });
 
-    goToTick(1, 3);
+    clickOnTick(1, 3);
 
     // colors don't change,
     expect(ticks()[0].style.color).toEqual('orangered');
@@ -273,7 +401,7 @@ describe('color config', () => {
 });
 
 describe('timelineData config', () => {
-  test('color as array', () => {
+  test('data from readme', () => {
     slider.createSliderAndTimeline({
       'wrapperDivId': 'div-id',
       'numTicks': 4,
@@ -303,6 +431,19 @@ describe('timelineData config', () => {
     expect(timelineInfos[1].textContent).toEqual('Event 2, tick 1');
     expect(timelineInfos[2].textContent).toEqual('Event 1, tick 2');
     expect(timelineInfos[5].textContent).toEqual('Event 3, tick 4?');
+  });
+  test('invalid data', () => {
+    expect(() => {
+      slider.createSliderAndTimeline({
+        'wrapperDivId': 'div-id',
+        'numTicks': 1,
+        'timelineData': [
+          [
+            {className: 'Event 1, tick 1'}
+          ]
+        ]
+      });
+    }).toThrow();
   });
   test('num ticks matches timeline data length', () => {
     expect(() => {
@@ -335,11 +476,11 @@ describe('timelinePeeking config', () => {
     let hasAnimationBegun = false;
 
     const mockCallback = jest.fn(() => {
-      const timelines = document.getElementsByClassName('timeline');
+      const timeline = timelines()[0];
       if (!hasAnimationBegun) {
-        expect(timelines[0].style.opacity).toEqual('')
+        expect(timeline.style.opacity).toEqual('')
       } else {
-        expect(timelines[0].style.opacity).toEqual('1')
+        expect(timeline.style.opacity).toEqual('1')
       }
     });
 
@@ -352,8 +493,7 @@ describe('timelinePeeking config', () => {
 
     hasAnimationBegun = true;
 
-    const timelines = document.getElementsByClassName('timeline');
-    expect(timelines[0].style.opacity).toEqual('0');
+    expect(timelines()[0].style.opacity).toEqual('0');
     slider.animate('div-id');
 
   });
