@@ -6,9 +6,7 @@ The project page has dynamic sliders you can interact with.
 
 ![Node.js CI](https://github.com/artoonie/timeline-range-slider/workflows/Node.js%20CI/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/artoonie/timeline-range-slider/badge.svg?branch=main)](https://coveralls.io/github/artoonie/timeline-range-slider?branch=main)
-
 ![npm bundle size](https://img.shields.io/bundlephobia/min/@artoonie/timeline-range-slider)
-
 ![npm](https://img.shields.io/npm/dm/@artoonie/timeline-range-slider)
 
 
@@ -125,8 +123,8 @@ The `config` dictionary has the following options:
 | `tickText` <br/><br/> default: `'•'` | The text that marks a tick in the slider. Can be a single string or a list. If it's a list, must be the size of numTicks. |
 | `color` <br/><br/> default: `'orangered'` | The color of past tick marks. Can be a single string or a list. If it's a list, must be of size numTicks. |
 | `sliderValueChanged` <br/><br/> default: `null` | Callback to be notified when the slider changes. |
-| `animateOnLoad` <br/><br/> default: false | Should the slider animate all steps on load? |
-| `timelinePeeking` <br/><br/> default: true | Should the timeline "peek open" during animation, and close after the animation completes? |
+| `animateOnLoad` <br/><br/> default: `false` | Should the slider animate all steps on load? |
+| `timelinePeeking` <br/><br/> default: `true` | Should the timeline "peek open" during animation, and close after the animation completes? |
 | `timelineData` <br/><br/> default: random data | The timeline data. See below for how to structure this. |
 
 #### Timeline data structure
