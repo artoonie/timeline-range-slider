@@ -81,8 +81,12 @@ describe('API basic tests', () => {
     expect(ticks()[0].classList).toContain('slider-item-active');
 
     // Moves to 4 after animation
-    slider.animate('div-id');
+    const mockCompletionCallback = jest.fn((successfullyCompletedAnimation) => {
+      expect(successfullyCompletedAnimation).toBeTruthy();
+    });
+    slider.animate('div-id', mockCompletionCallback);
     expect(ticks()[4].classList).toContain('slider-item-active');
+    expect(mockCompletionCallback).toHaveBeenCalledTimes(1);
   });
   test('test timeline visibility', () => {
     slider.createSliderAndTimeline({
@@ -159,7 +163,7 @@ describe('Interaction tests', () => {
     expect(document.getElementById('timeline-info-tooltip')).toEqual(null);
   });
   test('Animation cancels if drag starts', () => {
-    const mockCallback = jest.fn((value) => {
+    const mockValueChangedCallback = jest.fn((value) => {
       if (value == 2) {
         // Move back to tick 1
         clickOnTick(1, 4);
@@ -168,17 +172,22 @@ describe('Interaction tests', () => {
       expect(value).not.toEqual(3);
     });
 
+    const mockCompletionCallback = jest.fn((successfullyCompletedAnimation) => {
+      expect(successfullyCompletedAnimation).not.toBeTruthy();
+    });
+
     slider.createSliderAndTimeline({
       'wrapperDivId': 'div-id',
       'numTicks': 5,
-      'sliderValueChanged': mockCallback
+      'sliderValueChanged': mockValueChangedCallback
     });
 
     // start animating - the callback will cancel it
-    slider.animate('div-id');
+    slider.animate('div-id', mockCompletionCallback);
 
     // animation stopped after the first frame
     expect(ticks()[1].classList).toContain('slider-item-active');
+    expect(mockCompletionCallback).toHaveBeenCalledTimes(1);
   });
 });
 

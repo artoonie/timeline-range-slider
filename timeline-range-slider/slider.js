@@ -506,7 +506,7 @@ function createFakeData(numTicks) {
     return allData;
 }
 
-function animateFrontToBack(sliderData) {
+function animateFrontToBack(sliderData, completionCallback) {
     sliderData.isAnimationInProgress = true;
 
     let doCollapseTimelineWhenDone = false;
@@ -515,41 +515,57 @@ function animateFrontToBack(sliderData) {
         expandTimeline(sliderData);
     }
 
-    scheduleNextAnimationStep(sliderData, 0, doCollapseTimelineWhenDone);
+    const animationDetails = {
+      sliderData,
+      index: 0,
+      doCollapseTimelineWhenDone,
+      completionCallback,
+      startTimestamp: null,
+    };
+
+    scheduleNextAnimationStep(animationDetails);
 }
 
-function animationStepRequested(sliderData, index, doCollapseTimelineWhenDone, currentTimestamp) {
-    setSliderValue(sliderData, index);
+function animationStepRequested(animationDetails, currentTimestamp) {
+    setSliderValue(animationDetails.sliderData, animationDetails.index);
 
-    if (index < sliderData.numTicks) {
-        scheduleNextAnimationStep(sliderData, index+1, doCollapseTimelineWhenDone, currentTimestamp);
+    if (animationDetails.index < animationDetails.sliderData.numTicks) {
+        animationDetails.index += 1;
+        scheduleNextAnimationStep(animationDetails, currentTimestamp);
     } else {
-        sliderData.isAnimationInProgress = false;
+        animationDetails.sliderData.isAnimationInProgress = false;
 
-        if (doCollapseTimelineWhenDone) {
-            collapseTimeline(sliderData);
+        if (animationDetails.doCollapseTimelineWhenDone) {
+            collapseTimeline(animationDetails.sliderData);
+        }
+
+        if (animationDetails.completionCallback !== undefined) {
+            animationDetails.completionCallback(true);
         }
     }
 }
 
-function scheduleNextAnimationStep(sliderData, index, doCollapseTimelineWhenDone, startTimestamp) {
+function scheduleNextAnimationStep(animationDetails) {
     window.requestAnimationFrame(function(currentTimestamp) {
-        if (startTimestamp === undefined)
+        if (animationDetails.startTimestamp === null)
             startTimestamp = currentTimestamp;
         const elapsed = currentTimestamp - startTimestamp;
 
-        if (!sliderData.isAnimationInProgress) {
+        if (!animationDetails.sliderData.isAnimationInProgress) {
             // Canceled - don't collapse if user grabbed control
+            if (animationDetails.completionCallback !== undefined) {
+                animationDetails.completionCallback(false);
+            }
             return;
         }
 
-        const timeBetweenSteps = Math.min(1000 / sliderData.numTicks, 100);
+        const timeBetweenSteps = Math.min(1000 / animationDetails.sliderData.numTicks, 100);
         if (elapsed < timeBetweenSteps) { // Take 1s total, but at least 100ms
-            scheduleNextAnimationStep(sliderData, index, doCollapseTimelineWhenDone, startTimestamp);
+            scheduleNextAnimationStep(animationDetails);
             return;
         }
 
-      animationStepRequested(sliderData, index, doCollapseTimelineWhenDone, currentTimestamp);
+      animationStepRequested(animationDetails, currentTimestamp);
     })
 }
 
@@ -655,8 +671,8 @@ function trs_createSliderAndTimeline(config) {
     }
 }
 
-function trs_animate(wrapperDivId) {
-    animateFrontToBack(sliderDataFromWrapperDivId(wrapperDivId));
+function trs_animate(wrapperDivId, completionCallback) {
+    animateFrontToBack(sliderDataFromWrapperDivId(wrapperDivId), completionCallback);
 }
 
 function trs_moveSliderTo(wrapperDivId, value) {
