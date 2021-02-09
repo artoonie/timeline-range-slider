@@ -7,6 +7,10 @@ The project page has dynamic sliders you can interact with.
 ![Node.js CI](https://github.com/artoonie/timeline-range-slider/workflows/Node.js%20CI/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/artoonie/timeline-range-slider/badge.svg?branch=main)](https://coveralls.io/github/artoonie/timeline-range-slider?branch=main)
 
+![npm bundle size](https://img.shields.io/bundlephobia/min/@artoonie/timeline-range-slider)
+
+![npm](https://img.shields.io/npm/dm/@artoonie/timeline-range-slider)
+
 
 # A lightweight, dependency-free range slider
 

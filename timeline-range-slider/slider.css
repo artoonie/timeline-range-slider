@@ -64,11 +64,12 @@ body {
     color: #545454 !important;
 }
 .slider-item-active {
-    background-image: url('slider.png');
+    background-image: url('slider.svg');
     background-repeat: no-repeat;
     background-position: center;
     min-width: 28px !important; /* Override the default width */
     min-height: 16px;
+    background-size: 28px 16px;
 }
 
 .slider-item-hidden-slider {

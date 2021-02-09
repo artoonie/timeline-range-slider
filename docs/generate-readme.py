@@ -21,7 +21,9 @@ def initialize_static_lines():
         'See this project at [artoonie.github.io/timeline-range-slider](https://artoonie.github.io/timeline-range-slider)\n\n',
         'The project page has dynamic sliders you can interact with.\n\n',
         '![Node.js CI](https://github.com/artoonie/timeline-range-slider/workflows/Node.js%20CI/badge.svg)\n',
-        '[![Coverage Status](https://coveralls.io/repos/github/artoonie/timeline-range-slider/badge.svg?branch=main)](https://coveralls.io/github/artoonie/timeline-range-slider?branch=main)\n\n'
+        '[![Coverage Status](https://coveralls.io/repos/github/artoonie/timeline-range-slider/badge.svg?branch=main)](https://coveralls.io/github/artoonie/timeline-range-slider?branch=main)\n\n',
+        '![npm bundle size](https://img.shields.io/bundlephobia/min/@artoonie/timeline-range-slider)\n\n',
+        '![npm](https://img.shields.io/npm/dm/@artoonie/timeline-range-slider)\n\n'
     ]
 
 def isFileDataEqual(filename, expectedlines):
