@@ -535,3 +535,44 @@ describe('hideActiveTickText config', () => {
     expect(activeTicks[2].textContent).not.toEqual('zooey');
   });
 });
+
+describe('timeBetweenStepsMs config', () => {
+  function ensureAnimationStepSizeWorks(stepTimeMs) {
+    let isFirstCall = true;
+    const startTime = new Date();
+    const mockCompletionCallback = jest.fn(() => {
+      const endTime = new Date();
+      const timeDiff = endTime - startTime; // in ms
+      if (isFirstCall) {
+        expect(timeDiff).toBeLessThan(5);
+        isFirstCall = false;
+      } else {
+        expect(timeDiff).toBeGreaterThan(stepTimeMs);
+      }
+    });
+
+    slider.animate('div-id', mockCompletionCallback);
+  }
+  test('ensure sane default', () => {
+    slider.createSliderAndTimeline({
+      'wrapperDivId': 'div-id',
+      'numTicks': 2,
+      'timeBetweenStepsMs': 50
+    });
+
+    slider.moveSliderTo('div-id', 0);
+
+    ensureAnimationStepSizeWorks(50);
+  });
+
+  test('ensure default is sane', () => {
+    slider.createSliderAndTimeline({
+      'wrapperDivId': 'div-id',
+      'numTicks': 2
+    });
+
+    slider.moveSliderTo('div-id', 0);
+
+    ensureAnimationStepSizeWorks(500);
+  });
+});

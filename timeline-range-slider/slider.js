@@ -256,7 +256,7 @@ function setConfigDefaults(config) {
     }
     if (config.timeBetweenStepsMs === undefined) {
         // Take 1s total, but at least 100ms
-        config.hideActiveTickText = Math.min(1000 / config.numTicks, 100);
+        config.timeBetweenStepsMs = Math.min(1000 / config.numTicks, 100);
     }
 
     validateConfig(config);
