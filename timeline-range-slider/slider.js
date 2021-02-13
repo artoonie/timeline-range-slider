@@ -254,6 +254,10 @@ function setConfigDefaults(config) {
     if (config.hideActiveTickText === undefined) {
         config.hideActiveTickText = true;
     }
+    if (config.timeBetweenStepsMs === undefined) {
+        // Take 1s total, but at least 100ms
+        config.timeBetweenStepsMs = Math.min(1000 / config.numTicks, 100);
+    }
 
     validateConfig(config);
 }
@@ -520,10 +524,14 @@ function animateFrontToBack(sliderData, completionCallback) {
       index: 0,
       doCollapseTimelineWhenDone,
       completionCallback,
+      timeBetweenStepsMs: sliderData.timeBetweenStepsMs,
       startTimestamp: null,
     };
 
-    scheduleNextAnimationStep(animationDetails);
+    // First step is immediate, future steps follow timeBetweenStepsMs
+    window.requestAnimationFrame(function(currentTimestamp) {
+      animationStepRequested(animationDetails, currentTimestamp);
+    });
 }
 
 function animationStepRequested(animationDetails, currentTimestamp) {
@@ -548,8 +556,8 @@ function animationStepRequested(animationDetails, currentTimestamp) {
 function scheduleNextAnimationStep(animationDetails) {
     window.requestAnimationFrame(function(currentTimestamp) {
         if (animationDetails.startTimestamp === null)
-            startTimestamp = currentTimestamp;
-        const elapsed = currentTimestamp - startTimestamp;
+            animationDetails.startTimestamp = currentTimestamp;
+        const elapsed = currentTimestamp - animationDetails.startTimestamp;
 
         if (!animationDetails.sliderData.isAnimationInProgress) {
             // Canceled - don't collapse if user grabbed control
@@ -559,12 +567,12 @@ function scheduleNextAnimationStep(animationDetails) {
             return;
         }
 
-        const timeBetweenSteps = Math.min(1000 / animationDetails.sliderData.numTicks, 100);
-        if (elapsed < timeBetweenSteps) { // Take 1s total, but at least 100ms
+        if (elapsed < animationDetails.timeBetweenStepsMs) {
             scheduleNextAnimationStep(animationDetails);
             return;
         }
 
+      animationDetails.startTimestamp = null;
       animationStepRequested(animationDetails, currentTimestamp);
     })
 }
@@ -588,6 +596,7 @@ function sliderDataFromConfig(config) {
         'timelineData': config.timelineData,
         'timelinePeeking': config.timelinePeeking,
         'hideActiveTickText': config.hideActiveTickText,
+        'timeBetweenStepsMs': config.timeBetweenStepsMs,
         'isAnimationInProgress': false,
         'isTimelineVisible': false, // false until it's created
 

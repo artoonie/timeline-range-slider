@@ -113,6 +113,7 @@ The `config` dictionary has the following options:
 | `color` <br/><br/> default: `'orangered'` | The color of past tick marks. Can be a single string or a list. If it's a list, must be of size numTicks. |
 | `sliderValueChanged` <br/><br/> default: `null` | Callback to be notified when the slider changes. |
 | `animateOnLoad` <br/><br/> default: `false` | Should the slider animate all steps on load? |
+| `timeBetweenStepsMs` <br/><br/> default: `1s/numTicks` | How fast should the animation run? |
 | `timelinePeeking` <br/><br/> default: `true` | Should the timeline "peek open" during animation, and close after the animation completes? |
 | `timelineData` <br/><br/> default: random data | The timeline data. See below for how to structure this. |
 
