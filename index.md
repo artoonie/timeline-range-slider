@@ -68,7 +68,7 @@ additional config options are described below.
 
 You can a slider value manually by calling:
 ```javascript
-trs_setSliderValue('slide', 5);
+trs_moveSliderTo('slide', 5);
 ```
 
 You can animate a slider to have it move front-to-back with
