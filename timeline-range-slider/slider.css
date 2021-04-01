@@ -104,7 +104,6 @@ body {
     line-height: 1em;
     margin-top: 10px;
     text-align: center;
-    vertical-align: middle;
     border: none;
 }
 .prev-next-button:disabled {
@@ -118,8 +117,9 @@ body {
 }
 
 .prev-next-button a {
+    font-size: 20px;
+    vertical-align: baseline;
     color: white;
-    vertical-align: middle;
 }
 
 .prev-next-button a:hover {
