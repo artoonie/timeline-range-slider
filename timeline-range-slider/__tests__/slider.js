@@ -544,7 +544,7 @@ describe('timeBetweenStepsMs config', () => {
       const endTime = new Date();
       const timeDiff = endTime - startTime; // in ms
       if (isFirstCall) {
-        expect(timeDiff).toBeLessThan(5);
+        expect(timeDiff).toBeLessThanOrEqual(5);
         isFirstCall = false;
       } else {
         expect(timeDiff).toBeGreaterThan(stepTimeMs);
