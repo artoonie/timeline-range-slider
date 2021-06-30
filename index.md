@@ -116,6 +116,8 @@ The `config` dictionary has the following options:
 | `timeBetweenStepsMs` <br/><br/> default: `1s/numTicks` | How fast should the animation run? |
 | `timelinePeeking` <br/><br/> default: `true` | Should the timeline "peek open" during animation, and close after the animation completes? |
 | `timelineData` <br/><br/> default: random data | The timeline data. See below for how to structure this. |
+| `leftArrowText` <br/><br/> default: `<` | What text to place in the left arrow button? |
+| `rightArrowText` <br/><br/> default: `<` | What text to place in the right arrow button? |
 
 #### Timeline data structure
 The `timelineData` contains the events that occurred at each "tick" in the timeline.

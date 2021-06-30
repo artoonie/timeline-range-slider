@@ -77,9 +77,11 @@ function getTickTextFor(sliderData, index) {
     return Array.isArray(sliderData.tickText) ? sliderData.tickText[index] : sliderData.tickText;
 }
 
-function setSliderValue(sliderData, value) {
+function setSliderValue(sliderData, value, isFromUserInteraction) {
     /**
      * Sets the value of the slider, updating classes and notifying the timeline
+     * @param isFromUserInteraction: if a user is controlling this, smooth the animation
+     *  using window.requestAnimationFrame. Otherwise, use a synchronous callback.
      */
     value = Math.min(value, sliderData.numTicks-1);
     value = Math.max(value, 0);
@@ -114,10 +116,14 @@ function setSliderValue(sliderData, value) {
 
     // Optional callback
     if (sliderData.sliderValueChanged) {
-      // Request animation frame so repeated sliding triggers smooth callbacks
-      window.requestAnimationFrame(
-        function() { sliderData.sliderValueChanged(value); }
-      );
+      if (isFromUserInteraction) {
+        // Request animation frame so repeated sliding triggers smooth callbacks
+        window.requestAnimationFrame(
+          function() { sliderData.sliderValueChanged(value); }
+        );
+      } else {
+        sliderData.sliderValueChanged(value);
+      }
     }
 }
 
@@ -144,7 +150,7 @@ function setPosition(event) {
     const value = Math.floor(x / widthPerTick);
 
     const sliderData = sliders[activeSlideTarget.id];
-    setSliderValue(sliderData, value);
+    setSliderValue(sliderData, value, true);
 
     sliderData.isAnimationInProgress = false;
 }
@@ -258,6 +264,12 @@ function setConfigDefaults(config) {
         // Take 1s total, but at least 100ms
         config.timeBetweenStepsMs = Math.min(1000 / config.numTicks, 100);
     }
+    if (config.leftArrowText === undefined) {
+        config.leftArrowText = '&#8249;';
+    }
+    if (config.rightArrowText === undefined) {
+        config.rightArrowText = '&#8250;';
+    }
 
     validateConfig(config);
 }
@@ -322,16 +334,16 @@ function createArrowIcon(innerHTML, onclick) {
 }
 
 function createLeftArrow(sliderData) {
-    let leftArrow = createArrowIcon('&#8249;', function() {
-      setSliderValue(sliderData, sliderData.currentIndex-1);
+    let leftArrow = createArrowIcon(sliderData.leftArrowText, function() {
+      setSliderValue(sliderData, sliderData.currentIndex-1, true);
     });
     leftArrow.style.float = "left";
     sliderData.leftArrow = leftArrow;
 }
 
 function createRightArrow(sliderData) {
-    let rightArrow = createArrowIcon('&#8250;', function() {
-      setSliderValue(sliderData, sliderData.currentIndex+1);
+    let rightArrow = createArrowIcon(sliderData.rightArrowText, function() {
+      setSliderValue(sliderData, sliderData.currentIndex+1, true);
     });
     rightArrow.style.float = "right";
     sliderData.rightArrow = rightArrow;
@@ -535,7 +547,7 @@ function animateFrontToBack(sliderData, completionCallback) {
 }
 
 function animationStepRequested(animationDetails, currentTimestamp) {
-    setSliderValue(animationDetails.sliderData, animationDetails.index);
+    setSliderValue(animationDetails.sliderData, animationDetails.index, false);
 
     if (animationDetails.index < animationDetails.sliderData.numTicks) {
         animationDetails.index += 1;
@@ -599,6 +611,8 @@ function sliderDataFromConfig(config) {
         'timeBetweenStepsMs': config.timeBetweenStepsMs,
         'isAnimationInProgress': false,
         'isTimelineVisible': false, // false until it's created
+        'leftArrowText': config.leftArrowText,
+        'rightArrowText': config.rightArrowText,
 
         /* To be filled out by createSlider */
         'ticks': null,
@@ -665,7 +679,7 @@ function trs_createSliderAndTimeline(config) {
     sliders[sliderData.sliderDiv.id] = sliderData;
 
     // Move slider to end
-    setSliderValue(sliderData, config.numTicks-1);
+    setSliderValue(sliderData, config.numTicks-1, false);
 
     // Toggle visibility if requested
     if (config.hideTimelineInitially) {
@@ -675,7 +689,7 @@ function trs_createSliderAndTimeline(config) {
     }
 
     if (config.animateOnLoad) {
-        setSliderValue(sliderData, 0);
+        setSliderValue(sliderData, 0, false);
         animateFrontToBack(sliderData);
     }
 }
@@ -685,7 +699,7 @@ function trs_animate(wrapperDivId, completionCallback) {
 }
 
 function trs_moveSliderTo(wrapperDivId, value) {
-    setSliderValue(sliderDataFromWrapperDivId(wrapperDivId), value);
+    setSliderValue(sliderDataFromWrapperDivId(wrapperDivId), value, false);
 }
 
 function trs_toggleTimelineVisibility(wrapperDivId) {
